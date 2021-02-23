@@ -1,4 +1,4 @@
-from dice import Dice
+from .dice import Dice
 import re
 
 

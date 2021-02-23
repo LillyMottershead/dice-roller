@@ -1,0 +1,10 @@
+html {
+    background: #3b3e47;
+    color: #dcdee3;
+    font-family: Verdana, Helvetica, Arial, sans-serif;
+    text-align: center;
+}
+
+label {
+    align: left;
+}

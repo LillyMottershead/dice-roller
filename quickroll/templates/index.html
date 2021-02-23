@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<title>QuickRoll</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+<html>
+    <body>
+        <h1>Quick Roll</h1>
+        <form method="post">
+            <label for="command">Roll:</label>
+            <input name="command" id="command">
+            <input type="submit" value="Go">
+        </form>
+        <p>{{ response }}</p>
+    </body>
+</html>
