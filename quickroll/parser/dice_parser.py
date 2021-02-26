@@ -31,9 +31,15 @@ def parse_command(command, inner=False):
                     'addroll': alias_add_roll,
                 }
                 alias_args_to_func[arg_name](code, *arg_params)
-        return '\n'.join(list(map(lambda x: parse_command(x)[0], code))), True
+        result = []
+        is_crit = False
+        for roll in code:
+            roll_result = parse_compound_dice_roll(roll, is_crit)
+            result.append(roll_result[0])
+            is_crit = roll_result[1] or is_crit
+        return '\n'.join(result), True
     elif PATTERNS.COMPLETE_COMPOUND_ROLL.match(command):
-        return parse_compound_dice_roll(command), None
+        return parse_compound_dice_roll(command, False)[0], None
     else:
         return 'Something went wrong',
 
@@ -44,7 +50,7 @@ def alias_arg_specific_roll_wrapper(code, arg_name, n_other_params, params):
         which_roll = int(params[-1] or 1) - 1
         params = params[:-1]
     arg = f'{arg_name}({",".join(params)})'
-    code[which_roll] = ''.join((code[which_roll], arg))
+    code[which_roll] = ' '.join((code[which_roll], arg))
 
 
 def alias_add_roll(code, new_roll):

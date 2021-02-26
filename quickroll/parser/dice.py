@@ -2,7 +2,7 @@ from random import random
 
 
 class Dice:
-    def __init__(self, times, sides, keep=0):
+    def __init__(self, times, sides, keep=0, max=False, crit=False):
         self.times = int(times)
         self.sides = int(sides)
         self.lower = keep < 0
@@ -14,15 +14,18 @@ class Dice:
         self.rolls = []
         self.result = 0
         self.str = ''
-        self.roll()
+        self.roll(max, crit)
 
-    def roll(self):
+    def roll(self, max=False, crit=False):
         # the rolls are kept in a list of dicts with keys 'result' and 'kept' to leave open the opportunity
         # of seeing which rolls are kept/discarded  in case that information is needed outside the scope of this file
         # for example, in case the discarded rolls should be made a different color
         # the order is superficially important, as a roller might want to see if their advantage/disadvantage helped
         # (were the additional rolls used in the calculation or not)
-        self.rolls = [{'result': int(self.sides * random() + 1), 
+        calculation = self.sides if max else int(self.sides * random() + 1)
+        if crit:
+            calculation += self.sides
+        self.rolls = [{'result': self.single_time_calculation(max, crit), 
                     'kept': True,} 
                     for _ in range(self.times)]
         if self.keep != 0:
@@ -41,4 +44,10 @@ class Dice:
             rolls_string_list = [str(roll['result']) for roll in self.rolls]
             self.str = f'{self.clean_notation} ({", ".join(rolls_string_list)}) {self.result}'
         return self.str
+
+    def single_time_calculation(self, max=False, crit=False):
+        calculation = self.sides if max else int(self.sides * random() +1)
+        if crit:
+            calculation += self.sides
+        return calculation
             
