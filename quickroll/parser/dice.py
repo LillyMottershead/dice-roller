@@ -1,34 +1,44 @@
-import random
+from random import random
 
 
 class Dice:
     def __init__(self, times, sides, keep=0):
-        self.all_rolls = {index: int(random.random() * sides) + 1 for index in range(int(times))}
-        self.kept_roll_indices = {index: True for index in range(len(self.all_rolls))}
+        self.times = int(times)
+        self.sides = int(sides)
+        self.lower = keep < 0
+        self.keep = abs(int(keep))
+        self.clean_notation = f'{self.times}d{self.sides}'
+        if self.keep != 0:
+            self.clean_notation = f'{self.clean_notation}k{"l" if self.lower else ""}{str(abs(self.keep))}'
+
+        self.rolls = []
         self.result = 0
-        self.clean_notation = f'{times}d{sides}'
-        if keep != 0:
-            self.clean_notation = self.clean_notation + 'k' + (str(keep) if keep > 0 else 'l' + str(abs(keep)))
-        self.__times__ = times
-        self.__sides__ = sides
-        self.__keep__ = keep
+        self.str = ''
+        self.roll()
 
-        if self.__keep__ == 0:
-            self.result = sum(self.all_rolls.values())
-        else:
-            sorted_tuples = sorted([(key, element) for (key, element) in self.all_rolls.items()],
-                                   key=lambda x: x[1],
-                                   reverse=(self.__keep__ > 0))
-            self.kept_roll_indices = {index: False for index in range(len(self.all_rolls))}
-            for (index, _) in sorted_tuples[:abs(self.__keep__)]:
-                self.kept_roll_indices[index] = True
-            summing = [roll for (roll, kept) in zip(self.all_rolls.values(),
-                                                    self.kept_roll_indices.values()) if kept]
-            self.result = sum(summing)
-
-        rolls_info = zip(self.all_rolls.values(), self.kept_roll_indices.values())
-        rolls_string_list = [str(roll) for roll, kept in rolls_info]
-        self.str = f'{self.clean_notation} ({", ".join(rolls_string_list)}) {self.result}'
+    def roll(self):
+        # the rolls are kept in a list of dicts with keys 'result' and 'kept' to leave open the opportunity
+        # of seeing which rolls are kept/discarded  in case that information is needed outside the scope of this file
+        # for example, in case the discarded rolls should be made a different color
+        # the order is superficially important, as a roller might want to see if their advantage/disadvantage helped
+        # (were the additional rolls used in the calculation or not)
+        self.rolls = [{'result': int(self.sides * random() + 1), 
+                    'kept': True,} 
+                    for _ in range(self.times)]
+        if self.keep != 0:
+            discarded_rolls = sorted(enumerate(self.rolls),
+                                    key=lambda x: x[1]['result'],
+                                    reverse=self.lower)
+            discarded_rolls = [x[0] for x in discarded_rolls]
+            for index in discarded_rolls[:self.times-abs(self.keep)]:
+                self.rolls[index]['kept'] = False
+        self.result = sum([x['result'] for x in self.rolls if x['kept']])
+        self.__str__()
+        return self.result
 
     def __str__(self):
+        if not self.str:
+            rolls_string_list = [str(roll['result']) for roll in self.rolls]
+            self.str = f'{self.clean_notation} ({", ".join(rolls_string_list)}) {self.result}'
         return self.str
+            
