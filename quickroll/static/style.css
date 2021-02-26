@@ -1,10 +1,12 @@
 html {
     background: #3b3e47;
     color: #dcdee3;
-    font-family: Verdana, Helvetica, Arial, sans-serif;
+    font-family: Helvetica, Verdana, Arial, sans-serif;
     text-align: center;
 }
 
-label {
-    align: left;
+h1 {
+    text-transform: uppercase;
+    font-size: 1.5em;
 }
+

@@ -5,10 +5,14 @@
     <body>
         <h1>Quick Roll</h1>
         <form method="post">
-            <label for="command">Roll:</label>
-            <input name="command" id="command">
+            <input name="command" id="command" autofocus>
             <input type="submit" value="Go">
         </form>
-        <p>{{ response }}</p>
+        <form method="post">
+            <input type="submit" name="clear" value="Clear">
+        </form>
+        {% for roll in session['log'] %}
+            <p>{{ roll }}</p>
+        {% endfor %}
     </body>
 </html>

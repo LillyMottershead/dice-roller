@@ -2,3 +2,4 @@ venv/
 quickroll/__pycache__/
 quickroll/parser/__pycache__/
 .idea/
+.vscode/
