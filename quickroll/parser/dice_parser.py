@@ -14,7 +14,9 @@ alias_to_code = {}
 def parse_command(command, inner=False):
     first_arg = tuple(command.split(' ', 1))[0]
     if first_arg == 'alias':
-        return alias_command(command)
+        return alias_command(command),
+    if first_arg == 'load':
+        return load(command.split(' ', 1)[1]),
     elif first_arg in aliases:
         code = alias_to_code[first_arg].copy()
         try:
@@ -95,7 +97,6 @@ def alias_command(command):
                 #    return dummy_run
                 aliases.add(second_arg)
                 code = findall(PATTERNS.ALIAS_COMMAND, third_arg)
-                print(code)
                 rolls = [roll[0] for roll in code if fullmatch(PATTERNS.ALIAS_ROLL, roll[0])]
                 args = [roll[2:] for roll in code if not fullmatch(PATTERNS.ALIAS_ROLL, roll[0])]
                 parse_alias_args(rolls, args)
@@ -109,6 +110,14 @@ def alias_command(command):
         if len(aliases) == 0:
             return f'No aliases',
         return f'Aliases: {", ".join(list(aliases))}',
+
+
+def load(filename):
+    with open(filename) as file:
+        for line in file.readlines():
+            parse_command(line)
+    return f'Loaded {filename}'
+
 
 
 if __name__ == "__main__":

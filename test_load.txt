@@ -1,0 +1,2 @@
+alias a {d20} {d6} {d4} attack
+alias b {d20+2}
