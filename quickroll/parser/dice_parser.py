@@ -4,11 +4,12 @@ from re import (
 )
 import parser_regex as PATTERNS
 from compound_roll_parser import (
-    parse_compound_dice_roll, ARGS_TO_FUNC
+    parse_roll_equation, ARGS_TO_FUNC
 )
 
 aliases = set()
 alias_to_code = {}
+
 
 def parse_command(command, inner=False):
     first_arg = tuple(command.split(' ', 1))[0]
@@ -18,30 +19,35 @@ def parse_command(command, inner=False):
         code = alias_to_code[first_arg].copy()
         try:
             second_arg = tuple(command.split(' ', 1))[1]
-            args = PATTERNS.COMPOUND_ARG.findall(second_arg)
+            args = PATTERNS.ARG.findall(second_arg)
             args = list(map(lambda x: (x[0], PATTERNS.WHITESPACE.sub('', x[1]).split(',')), args))
         except IndexError:
             args = []
-        for arg_name, arg_params in args:
-            if arg_name in ARGS_TO_FUNC:
-                n_other_params = len(signature(ARGS_TO_FUNC[arg_name]).parameters)-1
-                alias_arg_specific_roll_wrapper(code, arg_name, n_other_params, arg_params)
-            else:
-                alias_args_to_func = {
-                    'addroll': alias_add_roll,
-                }
-                alias_args_to_func[arg_name](code, *arg_params)
+        parse_alias_args(code, args)
         result = []
         is_crit = False
         for roll in code:
-            roll_result = parse_compound_dice_roll(roll, is_crit)
+            roll_result = parse_roll_equation(roll, is_crit)
             result.append(roll_result[0])
             is_crit = roll_result[1] or is_crit
         return '\n'.join(result), True
-    elif PATTERNS.COMPLETE_COMPOUND_ROLL.match(command):
-        return parse_compound_dice_roll(command, False)[0], None
+    elif PATTERNS.COMPLETE_ROLL_EQUATION.match(command):
+        return parse_roll_equation(command, False)[0], None
     else:
         return 'Something went wrong',
+
+def parse_alias_args(code, args):
+    for arg_name, arg_params in args:
+        if arg_name in ARGS_TO_FUNC:
+            n_other_params = len(signature(ARGS_TO_FUNC[arg_name]).parameters)-2
+            alias_arg_specific_roll_wrapper(code, arg_name, n_other_params, arg_params)
+        else:
+            alias_args_to_func = {
+                'addroll': alias_add_roll,
+                'attack': set_attack,
+            }
+            alias_args_to_func[arg_name](code, *arg_params)
+
 
 def alias_arg_specific_roll_wrapper(code, arg_name, n_other_params, params):
     if len(params) == n_other_params:
@@ -55,6 +61,16 @@ def alias_arg_specific_roll_wrapper(code, arg_name, n_other_params, params):
 
 def alias_add_roll(code, new_roll):
     code.append(new_roll)
+
+
+def set_attack(code, *critable_rolls):
+    if critable_rolls:
+        critable_rolls = [int(x) for x in critable_rolls]
+    else:
+        critable_rolls = range(1, len(code))
+    code[0] = code[0] + ' tohit'
+    for i in critable_rolls:
+        code[i] = code[i] + ' critable'
 
 
 # returns
@@ -78,7 +94,12 @@ def alias_command(command):
                 # if dummy_run == "Aliases can't be nested":
                 #    return dummy_run
                 aliases.add(second_arg)
-                alias_to_code[second_arg] = findall('(?:{(.*?)})', third_arg)
+                code = findall(PATTERNS.ALIAS_COMMAND, third_arg)
+                print(code)
+                rolls = [roll[0] for roll in code if fullmatch(PATTERNS.ALIAS_ROLL, roll[0])]
+                args = [roll[2:] for roll in code if not fullmatch(PATTERNS.ALIAS_ROLL, roll[0])]
+                parse_alias_args(rolls, args)
+                alias_to_code[second_arg] = rolls
                 return f'Added {second_arg} to alias list', second_arg
             except IndexError:
                 if second_arg in aliases:
