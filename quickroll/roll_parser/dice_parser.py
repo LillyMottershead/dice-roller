@@ -2,18 +2,18 @@ from inspect import signature
 from re import (
     findall, fullmatch, match,
 )
-import parser_regex as PATTERNS
-from compound_roll_parser import (
+from . import patterns
+from .compound_roll_parser import (
     parse_roll_equation, ARGS_TO_FUNC
 )
-from decorators import ensure_tuple_return
+from .decorators import ensure_tuple_return
 
 aliases = set()
 alias_to_code = {}
 
 @ensure_tuple_return
 def parse_command(command, inner=False):
-    if PATTERNS.COMPLETE_ROLL_EQUATION.match(command):
+    if patterns.COMPLETE_ROLL_EQUATION.match(command):
         return parse_roll_equation(command, False)[0], None
 
     command_iter = iter(command.split(' '))
@@ -67,20 +67,20 @@ def alias_command(command):
         # if dummy_run == "Aliases can't be nested":
         #    return dummy_run
         aliases.add(front_token)
-        code = findall(PATTERNS.ALIAS_COMMAND, remaining)
-        rolls = [roll[0] for roll in code if fullmatch(PATTERNS.ALIAS_ROLL, roll[0])]
+        code = findall(patterns.ALIAS_COMMAND, remaining)
+        rolls = [roll[0] for roll in code if fullmatch(patterns.ALIAS_ROLL, roll[0])]
         rolls = [roll[1:-1] for roll in rolls]
-        args = [roll[2:] for roll in code if not fullmatch(PATTERNS.ALIAS_ROLL, roll[0])]
+        args = [roll[2:] for roll in code if not fullmatch(patterns.ALIAS_ROLL, roll[0])]
         parse_alias_args(rolls, args)
         alias_to_code[front_token] = rolls
         return f'Added {front_token} to alias list', front_token
 
 
 def call_alias(alias_name, command):
-    rolls = alias_to_code[alias_name]
+    rolls = alias_to_code[alias_name].copy()
     command = ' '.join([token for token in command])
-    args = PATTERNS.ARG.findall(command)
-    args = list(map(lambda x: (x[0], PATTERNS.WHITESPACE.sub('', x[1]).split(',')), args))
+    args = patterns.ARG.findall(command)
+    args = list(map(lambda x: (x[0], patterns.WHITESPACE.sub('', x[1]).split(',')), args))
     parse_alias_args(rolls, args)
     result = []
     is_crit = False
@@ -142,11 +142,3 @@ def export_aliases(filename):
         f.write(f'alias {alias} {format_alias_code(rolls)}\n')
     f.close()
     return f'Exported to {filename}'
-
-
-if __name__ == "__main__":
-    print('Ctrl+C to terminate')
-    while True:
-        repl_input = input("?: ")
-        print(parse_command(repl_input)[0])
-        print()

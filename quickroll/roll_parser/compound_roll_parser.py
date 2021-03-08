@@ -1,8 +1,8 @@
-from single_roll import Roll
 from re import (
     findall, fullmatch, match,
 )
-import parser_regex as PATTERNS
+from .single_roll import Roll
+from . import patterns
 
 class RollEquation:
     def __init__(self, tokens, args, is_crit):
@@ -12,7 +12,7 @@ class RollEquation:
 
 
 def parse_roll(token, is_max=False, crit=False):
-    match = PATTERNS.SINGLE_ROLL.match(token)
+    match = patterns.SINGLE_ROLL.match(token)
     times = int(match.group('times') or 1)
     keep = int((match.group('keep') or '0').replace('l', ''))
     is_higher = 'l' not in (match.group('keep') or '')
@@ -21,11 +21,11 @@ def parse_roll(token, is_max=False, crit=False):
 
 
 def parse_roll_equation(compound_dice_roll, is_crit):
-    tokens = PATTERNS.ROLL_COMMAND.findall(compound_dice_roll)
-    args = [token[1:] for token in tokens if PATTERNS.ARG.match(token[0])]
-    args = [(arg[0], PATTERNS.WHITESPACE.sub('', arg[1]).split(',')) for arg in args]
-    label = next(iter([token[3] for token in tokens if PATTERNS.ROLL_EQUATION_LABEL.match(token[0])]), '')
-    tokens = [token[0] for token in tokens if PATTERNS.ROLL_EQUATION_TOKENS.match(token[0])]
+    tokens = patterns.ROLL_COMMAND.findall(compound_dice_roll)
+    args = [token[1:] for token in tokens if patterns.ARG.match(token[0])]
+    args = [(arg[0], patterns.WHITESPACE.sub('', arg[1]).split(',')) for arg in args]
+    label = next(iter([token[3] for token in tokens if patterns.ROLL_EQUATION_LABEL.match(token[0])]), '')
+    tokens = [token[0] for token in tokens if patterns.ROLL_EQUATION_TOKENS.match(token[0])]
     modifiers = {'critable': False,
                  'tohit': False,
                  'minimum_to_crit': 20,
@@ -35,7 +35,7 @@ def parse_roll_equation(compound_dice_roll, is_crit):
     }
     apply_roll_equation_args(tokens, args, modifiers)
     dice_should_crit = modifiers['is_crit'] and modifiers['critable'] and not modifiers['tohit']
-    tokens_with_dice = [parse_roll(token, is_max=modifiers['max'], crit=dice_should_crit) if fullmatch(PATTERNS.SINGLE_ROLL, token) else token for token in tokens]
+    tokens_with_dice = [parse_roll(token, is_max=modifiers['max'], crit=dice_should_crit) if fullmatch(patterns.SINGLE_ROLL, token) else token for token in tokens]
     if modifiers['tohit']:
         d20 = next(iter([dice for dice in tokens_with_dice if type(dice) is Roll and dice.sides == 20]), None)
         if d20.result() >= modifiers['minimum_to_crit']:
@@ -63,7 +63,7 @@ def roll_equation_result(tokens_with_dice):
 def add(roll, _, extra_code):
     if extra_code[0] not in ['-+']:
         roll.append('+')
-    added_tokens = PATTERNS.ROLL_EQUATION_TOKENS.findall(extra_code)
+    added_tokens = patterns.ROLL_EQUATION_TOKENS.findall(extra_code)
     added_tokens = [token for token in added_tokens]
     roll.extend(added_tokens)
 

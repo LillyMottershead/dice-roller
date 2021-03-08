@@ -3,7 +3,7 @@ import os
 from flask import (
     Flask, render_template, render_template, request, session
 )
-from .parser.dice_parser import parse_command
+from .roll_parser import parse_command
 
 
 def create_app(test_config=None):
