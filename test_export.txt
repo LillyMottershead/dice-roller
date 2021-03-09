@@ -1,2 +1,0 @@
-alias a {d20 tohit} {d6 critable} {d4 critable}
-alias b {d20+2}

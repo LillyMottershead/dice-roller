@@ -56,3 +56,10 @@ class Roll:
             if self.is_crit:
                 self.str = ' + '.join((self.str, str(self.crit_bonus)))
         return self.str
+
+
+    def dice_images(self):
+        images = []
+        for roll in self.rolls:
+            images.append(f'd{self.sides}_{roll["result"]}.svg')
+        return images

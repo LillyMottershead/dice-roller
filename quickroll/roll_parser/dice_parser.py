@@ -4,7 +4,7 @@ from re import (
 )
 from . import patterns
 from .compound_roll_parser import (
-    parse_roll_equation, ARGS_TO_FUNC
+    RollEquation
 )
 from .decorators import ensure_tuple_return
 
@@ -14,7 +14,9 @@ alias_to_code = {}
 @ensure_tuple_return
 def parse_command(command, inner=False):
     if patterns.COMPLETE_ROLL_EQUATION.match(command):
-        return parse_roll_equation(command, False)[0], None
+        roll = RollEquation(command)
+        return str(roll), roll.dice_image_filenames()
+        # return parse_roll_equation(command, False)[0], None
 
     command_iter = iter(command.split(' '))
     if not command_iter:
@@ -23,8 +25,8 @@ def parse_command(command, inner=False):
     
     if front_token == 'load':
         return load(next(command_iter, ''))
-    elif front_token == 'export':
-        return export_aliases(next(command_iter, ''))
+    elif front_token == 'save':
+        return save_aliases(next(command_iter, ''))
     elif front_token == 'alias':
         return alias_command(command_iter)
     elif front_token in aliases:
@@ -34,7 +36,7 @@ def parse_command(command, inner=False):
 
 
 # returns
-# str_to_print, alias_name_if_created, to_delete
+# str_to_print, dice_image_names
 @ensure_tuple_return
 def alias_command(command):
     def alias_list():
@@ -73,7 +75,7 @@ def alias_command(command):
         args = [roll[2:] for roll in code if not fullmatch(patterns.ALIAS_ROLL, roll[0])]
         parse_alias_args(rolls, args)
         alias_to_code[front_token] = rolls
-        return f'Added {front_token} to alias list', front_token
+        return f'Added {front_token} to alias list'
 
 
 def call_alias(alias_name, command):
@@ -83,12 +85,16 @@ def call_alias(alias_name, command):
     args = list(map(lambda x: (x[0], patterns.WHITESPACE.sub('', x[1]).split(',')), args))
     parse_alias_args(rolls, args)
     result = []
+    dice_images = []
     is_crit = False
-    for roll in rolls:
-        roll_result = parse_roll_equation(roll, is_crit)
-        result.append(roll_result[0])
+    for roll_command in rolls:
+        roll = RollEquation(roll_command, is_crit)
+        # roll_result = parse_roll_equation(roll, is_crit)
+        roll_result = str(roll)
+        dice_images.extend(roll.dice_image_filenames())
+        result.append(roll_result)
         is_crit = roll_result[1] or is_crit
-    return '\n'.join(result), True
+    return '\n'.join(result), dice_images
 
 
 def parse_alias_args(code, args):
@@ -113,9 +119,20 @@ def parse_alias_args(code, args):
         for i in critable_rolls:
             code[i] = code[i] + ' critable'
 
+    ARGS_TO_FUNC_PARAM_N = {
+                'add': 1,
+                '+': 1,
+                'replace': 2,
+                'adv': 2,
+                'dis': 2,
+                'max': 0,
+                'tohit': 1,
+                'critable': 0,
+                'crit': 0,
+            }
     for arg_name, arg_params in args:
-        if arg_name in ARGS_TO_FUNC:
-            n_other_params = len(signature(ARGS_TO_FUNC[arg_name]).parameters)-2
+        if arg_name in ARGS_TO_FUNC_PARAM_N:
+            n_other_params = ARGS_TO_FUNC_PARAM_N[arg_name]
             alias_arg_specific_roll_wrapper(code, arg_name, n_other_params, arg_params)
         else:
             alias_args_to_func = {
@@ -132,7 +149,7 @@ def load(filename):
     return f'Loaded {filename}'
 
 
-def export_aliases(filename):
+def save_aliases(filename):
     def format_alias_code(rolls):
         rolls_with_curlies = [f'{{{roll}}}' for roll in rolls]
         return ' '.join(rolls_with_curlies)

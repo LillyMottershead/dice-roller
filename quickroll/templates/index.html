@@ -5,14 +5,32 @@
     <body>
         <h1>Quick Roll</h1>
         <form method="post">
-            <input name="command" id="command" autofocus>
-            <input type="submit" value="Go">
-        </form>
-        <form method="post">
+            <input type="text" name="command" id="command" autofocus>
+            <input type="submit" name="go" value=">">
             <input type="submit" name="clear" value="Clear">
         </form>
-        {% for roll in session['log'] %}
-            <p>{{ roll }}</p>
-        {% endfor %}
+        <div id="lastdiv">
+            <h2>Roll!</h2>
+            {% for roll in session['dice_images'] %}
+            <img src="{{ roll }}" width=50px />
+            {% endfor %}
+            {% for roll in session['last'] %}
+                <p>{{ roll }}</p>
+            {% endfor %}
+        </div>
+        <section id='container'>
+            <div id="aliasesdiv">
+                <h2>Aliases</h2>
+                {% for alias in session['aliases'] %}
+                    <p>{{alias}}</p>
+                {% endfor %}
+            </div>
+            <div id="logdiv">
+                <h2>Log</h2>
+                {% for roll in session['log'] %}
+                    <p>{{ roll }}</p>
+                {% endfor %}
+            </div>
+        </section>
     </body>
 </html>

@@ -1,12 +1,55 @@
-html {
+html, body {
+    height: 100%;
+    margin: 0;
     background: #3b3e47;
     color: #dcdee3;
     font-family: Helvetica, Verdana, Arial, sans-serif;
     text-align: center;
 }
 
+div {
+    background: #2a2c31;
+    width: 80%;
+    margin: auto;
+}
+#container {
+    width: 80%;
+    margin: auto;
+}
+#aliasesdiv {
+    width: 200px;
+    float: left;
+}
+#logdiv{
+    margin-left: 215px;
+    text-align: left;
+}
+
+h1, h2, p {
+    padding: .2em;
+}
 h1 {
     text-transform: uppercase;
     font-size: 1.5em;
+}
+h2 {
+    font-size: 1em;
+}
+
+p {
+    line-height: 1;
+}
+
+input{
+    background: #2a2c31;
+    color: #dcdee3;
+    border: none;
+    padding: .5em;
+}
+input[type=text] {
+    width: 50em;
+}
+input[type=submit] {
+    border: 2px #dcdee3;
 }
 

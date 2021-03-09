@@ -1,1 +1,3 @@
-from .dice_parser import parse_command
+from .dice_parser import (
+    parse_command, aliases
+)
