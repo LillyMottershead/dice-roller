@@ -1,10 +1,11 @@
 
 import os
+import json
 from flask import (
     Flask, render_template, render_template, request, session, url_for
 )
 from .roll_parser import (
-    parse_command, aliases
+    parse_command, aliases, RollEquation
 )
 
 
@@ -33,13 +34,20 @@ def create_app(test_config=None):
             session['log'] = []
         if request.method == 'POST':
             if command := request.form.get('command'):
-                roll = parse_command(command)
-                session['last'] = roll[0].split('\n')
-                session['dice_images'] = []
-                if len(roll) > 1:
-                    for thing in roll[1]:
-                        session['dice_images'].append(url_for('static', filename=f'dice/{thing}'))
-                session['log'] = session.get('log') + session.get('last')
+                rolls = parse_command(command)
+                rolls_as_dicts = []
+                for roll in rolls:
+                    roll_dict = {'str': str(roll),
+                                 'is_roll': type(roll) is RollEquation,
+                                }
+                    if roll_dict['is_roll']:
+                        roll_dict['images'] = [url_for('static', filename=f'dice/{filename}') for filename in roll.dice_image_filenames()]
+                        roll_dict['total'] = roll.result()
+                    rolls_as_dicts.append(roll_dict)
+                session['last'] = rolls_as_dicts
+                reverse_rolls_as_dicts = rolls_as_dicts.copy()
+                reverse_rolls_as_dicts.reverse()
+                session['log'] = [roll['str'] for roll in reverse_rolls_as_dicts] + session.get('log')
             if request.form.get('clear'):
                 session['log'] = []
         session['aliases'] = list(aliases)

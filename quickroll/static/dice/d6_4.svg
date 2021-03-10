@@ -43,13 +43,13 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="4"
-     inkscape:cx="64.412287"
-     inkscape:cy="64.412313"
+     inkscape:cx="77.433087"
+     inkscape:cy="48.574233"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
      showgrid="false"
-     showborder="true"
+     showborder="false"
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
@@ -76,33 +76,32 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(-53.791619,-114.14606)">
-    <path
-       sodipodi:type="star"
-       style="fill:#ff9955;fill-rule:evenodd;stroke-width:0.264583"
-       id="path16"
-       sodipodi:sides="4"
-       sodipodi:cx="70.834038"
-       sodipodi:cy="131.18848"
-       sodipodi:r1="24.079111"
-       sodipodi:r2="40.709278"
-       sodipodi:arg1="0.7863334"
-       sodipodi:arg2="1.5717316"
-       inkscape:flatsided="true"
-       inkscape:rounded="-2.4286129e-17"
-       inkscape:randomized="0"
-       d="m 87.844609,148.2309 -34.05299,-0.0318 0.03185,-34.05299 34.052991,0.0318 z"
-       inkscape:transform-center-x="0.47198395"
-       inkscape:transform-center-y="-9.7658359" />
+    <g
+       id="g1702"
+       transform="translate(-7.7476501,-3.5633056)">
+      <path
+         style="color:#000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:medium;line-height:normal;font-family:sans-serif;font-variant-ligatures:normal;font-variant-position:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-alternates:normal;font-variant-east-asian:normal;font-feature-settings:normal;font-variation-settings:normal;text-indent:0;text-align:start;text-decoration:none;text-decoration-line:none;text-decoration-style:solid;text-decoration-color:#000000;letter-spacing:normal;word-spacing:normal;text-transform:none;writing-mode:lr-tb;direction:ltr;text-orientation:mixed;dominant-baseline:auto;baseline-shift:baseline;text-anchor:start;white-space:normal;shape-padding:0;shape-margin:0;inline-size:0;clip-rule:nonzero;display:inline;overflow:visible;visibility:visible;opacity:1;isolation:auto;mix-blend-mode:normal;color-interpolation:sRGB;color-interpolation-filters:linearRGB;solid-color:#000000;solid-opacity:1;vector-effect:none;fill:#ff9955;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.186382;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;color-rendering:auto;image-rendering:auto;shape-rendering:auto;text-rendering:auto;enable-background:accumulate;stop-color:#000000;stop-opacity:1"
+         d="m 89.090763,148.2309 -23.988206,-0.0224 0.02244,-23.98821 23.988207,0.0224 z"
+         id="path16" />
+      <path
+         style="fill:#e98441;fill-opacity:1;stroke:none;stroke-width:0.186382px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 65.124993,124.22029 23.988207,0.0224 2.94762,-2.94762 -23.988207,-0.0224 z"
+         id="path1678" />
+      <path
+         style="fill:#c87137;fill-opacity:1;stroke:none;stroke-width:0.186382px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 89.1132,124.24269 2.94762,-2.94762 -0.02244,23.98821 -2.947622,2.94762 z"
+         id="path1680" />
+    </g>
     <text
        xml:space="preserve"
-       style="font-size:18.3712px;line-height:1.25;font-family:'Arial Rounded MT Bold';-inkscape-font-specification:'Arial Rounded MT Bold, Normal';font-variant-numeric:proportional-nums;fill:#ffffff;stroke-width:0.264583"
-       x="65.429428"
-       y="137.7368"
-       id="text64"><tspan
+       style="font-size:17.6389px;line-height:1.25;font-family:'Arial Rounded MT Bold';-inkscape-font-specification:'Arial Rounded MT Bold, Normal';font-variant-numeric:proportional-nums;fill:#ffffff;stroke-width:0.264583"
+       x="64.384125"
+       y="139.12785"
+       id="text1697"><tspan
          sodipodi:role="line"
-         id="tspan62"
-         x="65.429428"
-         y="137.7368"
-         style="fill:#ffffff;stroke-width:0.264583">4</tspan></text>
+         id="tspan1695"
+         x="64.384125"
+         y="139.12785"
+         style="font-size:17.6389px;fill:#ffffff;stroke-width:0.264583">4</tspan></text>
   </g>
 </svg>

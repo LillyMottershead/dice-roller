@@ -1,6 +1,10 @@
+@import 'microtip';
+
 html, body {
     height: 100%;
-    margin: 0;
+    width: 90%;
+    max-width: 1200px;
+    margin: auto;
     background: #3b3e47;
     color: #dcdee3;
     font-family: Helvetica, Verdana, Arial, sans-serif;
@@ -9,20 +13,29 @@ html, body {
 
 div {
     background: #2a2c31;
-    width: 80%;
     margin: auto;
 }
-#container {
-    width: 80%;
+.h-container {
     margin: auto;
+    display: flex;
+    flex-flow: row;
+    justify-content: center;
 }
-#aliasesdiv {
-    width: 200px;
-    float: left;
+.flex-child {
+    padding: 5px;
+    margin: 10px;
+    flex: 0 0 200px;
+    flex-flow: row;
 }
-#logdiv{
-    margin-left: 215px;
+.log {
+    font-family: 'Courier New', Courier, monospace;
     text-align: left;
+    display: flex;
+    flex-flow: column-reverse;
+    flex: 1 1;
+    overflow-y: auto;
+    height: 400px;
+    max-height: 400px;
 }
 
 h1, h2, p {
@@ -34,10 +47,13 @@ h1 {
 }
 h2 {
     font-size: 1em;
+    line-height: 1;
+    margin: 0;
 }
 
 p {
     line-height: 1;
+    margin: 0;
 }
 
 input{
@@ -47,9 +63,14 @@ input{
     padding: .5em;
 }
 input[type=text] {
-    width: 50em;
+    width: 80%;
+    max-width: 50em;
 }
 input[type=submit] {
     border: 2px #dcdee3;
+}
+
+img {
+    padding: 5px;
 }
 

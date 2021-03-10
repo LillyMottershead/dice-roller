@@ -14,9 +14,8 @@ alias_to_code = {}
 @ensure_tuple_return
 def parse_command(command, inner=False):
     if patterns.COMPLETE_ROLL_EQUATION.match(command):
-        roll = RollEquation(command)
-        return str(roll), roll.dice_image_filenames()
-        # return parse_roll_equation(command, False)[0], None
+        return RollEquation(command)
+        # return str(roll), roll.dice_image_filenames()
 
     command_iter = iter(command.split(' '))
     if not command_iter:
@@ -30,7 +29,7 @@ def parse_command(command, inner=False):
     elif front_token == 'alias':
         return alias_command(command_iter)
     elif front_token in aliases:
-        return call_alias(front_token, command_iter)
+        return tuple(call_alias(front_token, command_iter))
     else:
         return f'Unknown command {front_token}'
 
@@ -79,22 +78,25 @@ def alias_command(command):
 
 
 def call_alias(alias_name, command):
-    rolls = alias_to_code[alias_name].copy()
+    roll_commands = alias_to_code[alias_name].copy()
     command = ' '.join([token for token in command])
     args = patterns.ARG.findall(command)
     args = list(map(lambda x: (x[0], patterns.WHITESPACE.sub('', x[1]).split(',')), args))
-    parse_alias_args(rolls, args)
-    result = []
-    dice_images = []
+    parse_alias_args(roll_commands, args)
     is_crit = False
-    for roll_command in rolls:
+    rolls = []
+    for roll_command in roll_commands:
         roll = RollEquation(roll_command, is_crit)
-        # roll_result = parse_roll_equation(roll, is_crit)
-        roll_result = str(roll)
-        dice_images.extend(roll.dice_image_filenames())
-        result.append(roll_result)
-        is_crit = roll_result[1] or is_crit
-    return '\n'.join(result), dice_images
+        is_crit = roll.is_crit() or is_crit
+        rolls.append(roll)
+    return rolls
+    # for roll_command in rolls:
+    #     roll = RollEquation(roll_command, is_crit)
+    #     roll_result = str(roll)
+    #     dice_images.extend(roll.dice_image_filenames())
+    #     result.append(roll_result)
+    #     is_crit = roll_result[1] or is_crit
+    # return '\n'.join(result), dice_images
 
 
 def parse_alias_args(code, args):

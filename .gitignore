@@ -1,5 +1,5 @@
 venv/
-quickroll/__pycache__/
-quickroll/roll_parser/__pycache__/
+**/__pycache__/
+*.pyc
 .idea/
 .vscode/
