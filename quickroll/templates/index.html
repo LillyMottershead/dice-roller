@@ -28,9 +28,13 @@
             <section class='h-container'>
                 <div class='flex-child aliases'>
                     <h2>Aliases</h2>
+                    <form method=post enctype=multipart/form-data>
+                        <input type=file name=file>
+                        <input type=submit value=Import>
+                    </form>
                     <div>
                         {% for alias in session['aliases'] %}
-                        <p>{{alias}}</p>
+                            <p>{{alias}}</p>
                         {% endfor %}
                     </div>
                 </div>

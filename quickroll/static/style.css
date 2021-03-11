@@ -29,7 +29,7 @@ div {
     flex: 0 0 fit-content;
 }
 .aliases {
-    flex: 0 0 100px;
+    flex: 0 0 200px;
 }
 .log {
     text-align: left;
@@ -75,6 +75,9 @@ input[type=text] {
 }
 input[type=submit] {
     border: 2px #dcdee3;
+}
+input[type=file] {
+    background: #2a2c31;
 }
 
 img {

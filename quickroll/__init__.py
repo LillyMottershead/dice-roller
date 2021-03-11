@@ -2,8 +2,9 @@
 import os
 import json
 from flask import (
-    Flask, render_template, render_template, request, session, url_for
+    Flask, flash, render_template, render_template, request, session, url_for
 )
+from werkzeug.utils import secure_filename
 from .roll_parser import (
     parse_command, aliases, RollEquation
 )
@@ -14,6 +15,7 @@ def create_app(test_config=None):
     app.config.from_mapping(
         SECRET_KEY='dev',
     )
+    app.config['UPLOAD_FOLDER'] = '/uploads' 
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
@@ -41,9 +43,10 @@ def create_app(test_config=None):
                     rolls = parse_command(command)
                     rolls_as_dicts = []
                     for roll in rolls:
-                        roll_dict = {'str': str(roll),
-                                    'is_roll': type(roll) is RollEquation,
-                                    }
+                        roll_dict = {
+                            'str': str(roll),
+                            'is_roll': type(roll) is RollEquation,
+                        }
                         if roll_dict['is_roll']:
                             roll_dict['images'] = [url_for('static', filename=f'dice/{filename}') for filename in roll.dice_image_filenames()]
                             roll_dict['total'] = roll.result()
@@ -55,6 +58,14 @@ def create_app(test_config=None):
                     session['last'].append(rolls_as_dicts)
             if request.form.get('clear'):
                 session['log'] = []
+            if 'file' in request.files:
+                file = request.files['file']
+                if file.filename.endswith('.txt'):
+                    for line in file:
+                        line = line.decode('utf-8')
+                        parse_command(str(line))
+
+
         session['aliases'] = list(aliases)
         return render_template('index.html')
 
