@@ -34,20 +34,25 @@ def create_app(test_config=None):
             session['log'] = []
         if request.method == 'POST':
             if command := request.form.get('command'):
-                rolls = parse_command(command)
-                rolls_as_dicts = []
-                for roll in rolls:
-                    roll_dict = {'str': str(roll),
-                                 'is_roll': type(roll) is RollEquation,
-                                }
-                    if roll_dict['is_roll']:
-                        roll_dict['images'] = [url_for('static', filename=f'dice/{filename}') for filename in roll.dice_image_filenames()]
-                        roll_dict['total'] = roll.result()
-                    rolls_as_dicts.append(roll_dict)
-                session['last'] = rolls_as_dicts
-                reverse_rolls_as_dicts = rolls_as_dicts.copy()
-                reverse_rolls_as_dicts.reverse()
-                session['log'] = [roll['str'] for roll in reverse_rolls_as_dicts] + session.get('log')
+                times = request.form.get('times') or 1
+                session['last'] = []
+                for _ in range(int(times)):
+                    session['log'] = [f'> {command}'] + session['log']  
+                    rolls = parse_command(command)
+                    rolls_as_dicts = []
+                    for roll in rolls:
+                        roll_dict = {'str': str(roll),
+                                    'is_roll': type(roll) is RollEquation,
+                                    }
+                        if roll_dict['is_roll']:
+                            roll_dict['images'] = [url_for('static', filename=f'dice/{filename}') for filename in roll.dice_image_filenames()]
+                            roll_dict['total'] = roll.result()
+                            roll_dict['label'] = roll.label
+                        rolls_as_dicts.append(roll_dict)
+                        reverse_rolls_as_dicts = rolls_as_dicts.copy()
+                        reverse_rolls_as_dicts.reverse()
+                    session['log'] = [roll['str'] for roll in reverse_rolls_as_dicts] + session.get('log')
+                    session['last'].append(rolls_as_dicts)
             if request.form.get('clear'):
                 session['log'] = []
         session['aliases'] = list(aliases)

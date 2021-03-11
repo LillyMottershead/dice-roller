@@ -2,38 +2,48 @@
 <title>QuickRoll</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 <html>
-    <body class='c-container''>
+    <body class='c-container'>
         <h1>Quick Roll</h1>
         <form method="post">
             <input type="text" name="command" id="command" autofocus>
+            <input type="text" name="times" id="times" style="width:30px;" title="number of times to execute command">
             <input type="submit" name="go" value=">">
-            <input type="submit" name="clear" value="Clear">
         </form>
         <section class='h-container'>
-            {% for roll in session['last'] %}
-                {% if roll['is_roll'] %}
-                    <div class='flex-child' title="{{ roll['str'] }}">
-                        {% for image in roll['images'] %}
-                            <img src={{ image }} height=50px>
+            {% for call in session['last'] %}
+                <section class='h-container flex-child' style='border:none; margin:10px; max-width:50%'>
+                        {% for roll in call %}
+                            {% if roll['is_roll'] %}
+                                <div class='flex-child' title="{{ roll['str'] }}" style='margin:-1px'>
+                                    {% for image in roll['images'] %}
+                                        <img src={{ image }} height=50px>
+                                    {% endfor %}
+                                    <p>{{ roll['total'] }} <i style='font-size: .75em'>{{ roll['label'] }}</i></p>
+                                </div>
+                            {% endif %} 
                         {% endfor %}
-                        <p style='text-align: right'>{{ roll['total'] }}</p>
-                    </div>
-                {% else %}
-                    <p>{{ roll['str'] }}</p>
-                {% endif %} 
+                </section>
             {% endfor %}
         </section>
-        <section class='h-container'>
-            <div class='flex-child'>
-                <h2>Aliases</h2>
-                {% for alias in session['aliases'] %}
-                    <p>{{alias}}</p>
-                {% endfor %}
-            </div>
-            <div class='flex-child log'>
-                {% for roll in session['log'] %}
-                    <p>{{ roll }}</p>
-                {% endfor %}
+            <section class='h-container'>
+                <div class='flex-child aliases'>
+                    <h2>Aliases</h2>
+                    <div>
+                        {% for alias in session['aliases'] %}
+                        <p>{{alias}}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class='flex-child log'>
+                    <form method="post">
+                        <label class = 'h2'>Log</label>
+                        <input type="submit" name="clear" value="Clear">
+                    </form>
+                <div class='inner-log'>
+                    {% for roll in session['log'] %}
+                        <p>{{ roll }}</p>
+                    {% endfor %}
+                </div>
             </div>
         </section>
     </body>
