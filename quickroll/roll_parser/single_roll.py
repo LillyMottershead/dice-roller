@@ -61,5 +61,6 @@ class Roll:
     def dice_images(self):
         images = []
         for roll in self.rolls:
-            images.append(f'd{self.sides}_{roll["result"]}.svg')
+            folder = 'dice' if  roll['kept'] else 'gray_dice'   
+            images.append(f'{folder}/d{self.sides}_{roll["result"]}.svg')
         return images

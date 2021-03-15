@@ -77,7 +77,12 @@ input[type=submit] {
     border: 2px #dcdee3;
 }
 input[type=file] {
-    background: #2a2c31;
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
 }
 
 img {

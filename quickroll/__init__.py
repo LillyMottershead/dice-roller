@@ -31,7 +31,7 @@ def create_app(test_config=None):
 
     @app.route('/', methods=('GET', 'POST'))
     def index():
-        session['last'] = []
+        session['last'] = session['last'] or []
         if 'log' not in session:
             session['log'] = []
         if request.method == 'POST':
@@ -48,9 +48,10 @@ def create_app(test_config=None):
                             'is_roll': type(roll) is RollEquation,
                         }
                         if roll_dict['is_roll']:
-                            roll_dict['images'] = [url_for('static', filename=f'dice/{filename}') for filename in roll.dice_image_filenames()]
+                            roll_dict['images'] = [url_for('static', filename=filename) for filename in roll.dice_image_filenames()]
                             roll_dict['total'] = roll.result()
                             roll_dict['label'] = roll.label
+                            roll_dict['is_crit'] = roll.is_crit()
                         rolls_as_dicts.append(roll_dict)
                         reverse_rolls_as_dicts = rolls_as_dicts.copy()
                         reverse_rolls_as_dicts.reverse()
@@ -59,7 +60,7 @@ def create_app(test_config=None):
             if request.form.get('clear'):
                 session['log'] = []
             if 'file' in request.files:
-                file = request.files['file']
+                file = request.files['import_file']
                 if file.filename.endswith('.txt'):
                     for line in file:
                         line = line.decode('utf-8')

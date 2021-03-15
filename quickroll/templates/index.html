@@ -16,9 +16,9 @@
                             {% if roll['is_roll'] %}
                                 <div class='flex-child' title="{{ roll['str'] }}" style='margin:-1px'>
                                     {% for image in roll['images'] %}
-                                        <img src={{ image }} height=50px>
+                                        <img src={{ image }} height=60px>
                                     {% endfor %}
-                                    <p>{{ roll['total'] }} <i style='font-size: .75em'>{{ roll['label'] }}</i></p>
+                                    <p>{{ roll['total'] }} <span style='font-size: .75em'>{{ roll['label'] }}</span></p>
                                 </div>
                             {% endif %} 
                         {% endfor %}
@@ -29,8 +29,8 @@
                 <div class='flex-child aliases'>
                     <h2>Aliases</h2>
                     <form method=post enctype=multipart/form-data>
-                        <input type=file name=file>
-                        <input type=submit value=Import>
+                        <input type=file name=import_file id=import_file>
+                        <label for=import_file>Import</label>
                     </form>
                     <div>
                         {% for alias in session['aliases'] %}
