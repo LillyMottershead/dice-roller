@@ -22,8 +22,7 @@ div {
     max-width: 100%;
 }
 .flex-child {
-    border: 1px #6b6c75;
-    border-style: solid;
+    border: 1px #6b6c75 solid;
     padding: 5px;
     margin: 1px;
     flex: 0 0 fit-content;
@@ -56,33 +55,38 @@ h1 {
 }
 h2 {
     font-size: 1em;
+    line-height: 1.2;
 }
 .h2 {
     font-size: 1em;
     font-weight: bold;
 }
 
-input {
+.input {
     background: #2a2c31;
     color: #dcdee3;
-    border: none;
-    padding: .5em;
+    font-size: .8em;
+    font-family: Helvetica, Verdana, Arial, sans-serif;
+    border: 1px #6b6c75 solid;
+    padding: 5px;
     margin: 1px;
+    cursor: pointer;
 }
-input[type=text] {
+.input-text {
     width: 80%;
     max-width: 50em;
+    cursor: text;
 }
-input[type=submit] {
-    border: 2px #dcdee3;
-}
-input[type=file] {
+.input-file {
 	width: 0.1px;
 	height: 0.1px;
 	opacity: 0;
 	overflow: hidden;
 	position: absolute;
 	z-index: -1;
+}
+.input-file:focus + .input {
+    border: 1px #dcdee3 solid;
 }
 
 img {

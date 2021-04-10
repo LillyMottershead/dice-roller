@@ -31,7 +31,8 @@ def create_app(test_config=None):
 
     @app.route('/', methods=('GET', 'POST'))
     def index():
-        session['last'] = session['last'] or []
+        if 'last' not in session:
+           session['last'] = []
         if 'log' not in session:
             session['log'] = []
         if request.method == 'POST':
