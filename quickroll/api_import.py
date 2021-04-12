@@ -14,11 +14,15 @@ def get_monster_actions(monster_json):
     for action in monster_json['actions']:
         name = action['name'].lower().replace(' ', '-')
         if 'attack_bonus' in action:
-            to_hit = f'{{d20+{action["attack_bonus"]} [to hit]}}'
+            to_hit = f'{{d20+{action["attack_bonus"]} [to hit] tohit}}'
+            # damages = [f'{{{damage["damage_dice"]} [{damage["damage_type"]["index"]}] critable}}' for damage in action['damage']]
             damages = []
             for damage in action['damage']:
-                damage = f'{{{damage["damage_dice"]} [{damage["damage_type"]["index"]}]}}'
-                damages.append(damage)
+                if 'choose' in damage:
+                    for chosen_damage in damage['from']:
+                        damages.append(f'{{{chosen_damage["damage_dice"]} [{chosen_damage["damage_type"]["index"]}] critable}}')
+                else:
+                    damages.append(f'{{{damage["damage_dice"]} [{damage["damage_type"]["index"]}] critable}}')
             action = f'{name} {to_hit} {" ".join(damages)}'
             actions.append(action)
     return actions
@@ -27,4 +31,5 @@ def get_monster_actions(monster_json):
 import sys
 if __name__ == "__main__":
     monster_json = get_monster(sys.argv[1])
-    print([x for x in get_monster_actions(monster_json)])
+    for action in get_monster_actions(monster_json):
+        print(action)
