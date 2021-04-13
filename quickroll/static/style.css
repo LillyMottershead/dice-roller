@@ -23,8 +23,8 @@ div {
 }
 .flex-child {
     border: 1px #6b6c75 solid;
-    padding: 5px;
-    margin: 1px;
+    padding: .7em;
+    margin: 1em;
     flex: 0 0 fit-content;
 }
 .aliases {
@@ -43,6 +43,41 @@ div {
     height: 400px;
     max-height: 400px;
 }
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 200px;
+    top: 100%;
+    left: 50%;
+    margin-left: -105px;
+    margin-top: 8px;
+    padding: 5px 5px;
+    border-radius: 6px;
+    background-color: #16171b;
+    color: #fff;
+    text-align: center;
+    font-size: .75em;
+
+    position: absolute;
+    z-index: 1;
+}
+.tooltip:hover .tooltiptext{
+    visibility: visible;
+}
+.tooltip .tooltiptext::after {
+    content: " ";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent black transparent;
+  }
 
 h1, h2, p, .h2 {
     padding: .2em;
@@ -88,6 +123,7 @@ h2 {
 .input-file:focus + .input {
     border: 1px #dcdee3 solid;
 }
+
 
 img {
     padding: 5px;

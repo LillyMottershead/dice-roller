@@ -14,11 +14,12 @@
                 <section class='h-container flex-child' style='border:none; margin:10px; max-width:30%'>
                         {% for roll in call %}
                             {% if roll['is_roll'] %}
-                                <div class='flex-child' title="{{ roll['str'] }}" style='margin:-1px'>
+                                <div class='flex-child tooltip' style='margin:-1px; margin-bottom:0px;'>
                                     {% for image in roll['images'] %}
                                         <img src={{ image }} height=60px>
                                     {% endfor %}
                                     <p>{{ roll['total'] }} <span style='font-size: .75em'>{{ roll['label'] }}</span></p>
+                                    <span class='tooltiptext'>{{ roll['str'] }}</span>
                                 </div>
                             {% endif %} 
                         {% endfor %}
