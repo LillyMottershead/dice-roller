@@ -3,7 +3,43 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 <html>
     <body class='c-container'>
+        <div id='overlay-lightbox' class='lightbox'>
+            <div id='overlay' class='modal'>
+                <h1>Options <button onclick="off()">Close</button></h1>
+                <h2>Crit Rules</h2>
+                <form method="post">
+                    <label>
+                        <input type="radio" id="rolltwice" name="crit_rule" value="rolltwice">
+                        Double the dice rolled.
+                    </label><br>
+                    <label>
+                        <input type="radio" id="addmaxdice" name="crit_rule" value="addmaxdice">
+                        Roll the dice normally, and then add the maximum dice roll.
+                    </label><br>
+                    <label>
+                        <input type="radio" id="doubledice" name="crit_rule" value="doubledice">
+                        Roll the dice normally, and then double them.
+                    </label><br>
+                    <input class='input' type='submit' name='save' value='save'>
+
+                </form>
+            </div>
+        </div>      
+        <script>
+            function on() {
+                document.getElementById("overlay-lightbox").style.display = "block";
+                document.getElementById("overlay").style.display = "block";
+            }
+            
+            function off() {
+                document.getElementById("overlay-lightbox").style.display = "none";
+                document.getElementById("overlay").style.display = "none";
+            } 
+        </script>
+
+
         <h1>Quick Roll</h1>
+        <button onclick="on()">Options</button>
         <form method="post">
             <input class='input input-text' type="text" name="command" id="command" autofocus>
             <input class='input input-text' type="text" name="times" id="times" style="width:30px;" title="number of times to execute command">

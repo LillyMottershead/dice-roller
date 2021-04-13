@@ -1,13 +1,13 @@
 from random import random
 
-CRIT_RULE = 'addmaxdice'
 # rolltwice - roll twice as many dice
 # addmaxdice - add the max of the dice to the result
 # doubledice - roll the same number of dice, double the result
 
 class Roll:
+    crit_rule = 'addmaxdice'    
     def __init__(self, times, sides, keep=0, is_higher =False, is_max=False, crit=False):
-        self.times = times*2 if CRIT_RULE == 'rolltwice' and crit else times
+        self.times = times*2 if self.crit_rule == 'rolltwice' and crit else times
         self.sides = sides
         self.keep = keep
         self.is_higher = is_higher
@@ -23,7 +23,7 @@ class Roll:
 
         self.is_max = is_max
         self.is_crit = crit
-        self.crit_bonus = self.sides * self.times if CRIT_RULE == 'addmaxdice' and self.is_crit else 0
+        self.crit_bonus = self.sides * self.times if self.crit_rule == 'addmaxdice' and self.is_crit else 0
 
         self.roll()
 
@@ -44,7 +44,7 @@ class Roll:
             for index in discarded_rolls[:self.times-abs(self.keep)]:
                 self.rolls[index]['kept'] = False
         self.roll_result = sum([x['result'] for x in self.rolls if x['kept']])
-        if CRIT_RULE == 'doubledice' and self.is_crit:
+        if self.crit_rule == 'doubledice' and self.is_crit:
             self.crit_bonus = self.roll_result
         self.__str__()
         return self.roll_result + self.crit_bonus
@@ -59,7 +59,7 @@ class Roll:
         if not self.str:
             rolls_string_list = [str(roll['result']) for roll in self.rolls]
             self.str = f'{self.clean_notation} ({", ".join(rolls_string_list)}) {self.roll_result}'
-            if self.is_crit and CRIT_RULE != 'rolltwice':
+            if self.is_crit and self.crit_rule != 'rolltwice':
                 self.str = ' + '.join((self.str, str(self.crit_bonus)))
         return self.str
 

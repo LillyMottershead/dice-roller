@@ -4,3 +4,6 @@ from .dice_parser import (
 from .compound_roll_parser import (
     RollEquation
 )
+from .single_roll import (
+    Roll
+)

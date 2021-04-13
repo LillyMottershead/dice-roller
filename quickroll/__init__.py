@@ -6,7 +6,7 @@ from flask import (
 )
 from werkzeug.utils import secure_filename
 from .roll_parser import (
-    parse_command, aliases, RollEquation
+    parse_command, aliases, RollEquation, Roll
 )
 
 
@@ -60,6 +60,8 @@ def create_app(test_config=None):
                     session['last'].append(rolls_as_dicts)
             if request.form.get('clear'):
                 session['log'] = []
+            if request.form.get('crit_rule'):
+                Roll.crit_rule = request.form.get('crit_rule')
             if 'file' in request.files:
                 file = request.files['import_file']
                 if file.filename.endswith('.txt'):

@@ -1,5 +1,5 @@
 html, body {
-    height: 100%;
+    min-height: 100%;
     width: 90%;
     max-width: 1200px;
     margin: auto;
@@ -7,6 +7,35 @@ html, body {
     color: #dcdee3;
     font-family: Helvetica, Verdana, Arial, sans-serif;
     text-align: center;
+}
+body {
+    position: relative;
+}
+.lightbox {
+    content: "";
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 10;
+    background-color: rgba(0,0,0,0.5);
+  }
+.modal {
+    display: none;
+    width: 50%;
+    height: 50%;
+    position: fixed;
+    top: 50%; 
+    left: 50%;
+    margin-top: -12.5%;
+    margin-left: -25%;
+    background-color:#353741;
+    z-index: 11; /* 1px higher than the overlay layer */
+
+    padding: .7em;
+    text-align: left;
 }
 
 div {
