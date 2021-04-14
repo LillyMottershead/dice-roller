@@ -61,7 +61,7 @@ def create_app(test_config=None):
             if request.form.get('clear'):
                 session['log'] = []
             if request.form.get('crit_rule'):
-                Roll.crit_rule = request.form.get('crit_rule')
+                Roll.crit_rule = request.form.get('crit_rule') # TODO: this will apply across all users
             if 'file' in request.files:
                 file = request.files['import_file']
                 if file.filename.endswith('.txt'):
