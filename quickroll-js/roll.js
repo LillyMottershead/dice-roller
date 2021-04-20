@@ -1,3 +1,5 @@
+import React from 'react'
+
 "use strict"
 
 const sumReducer = (accumulator, currentValue) => accumulator + currentValue;
@@ -11,16 +13,36 @@ const argPattern = /(?:(\w+)(?:\((.*?)\))?)/g;
 
 
 /**
+ * @param {string} str - String to test for being in single roll notation 
+ * @returns {boolean} - True if the str is a single roll, false otherwise
+ */
+function isSingleRoll(str) {
+    return str.match(singleRollCapturingPattern) != undefined;
+}
+
+/**
  * @param {string} str - The roll string 
  * @param {boolean} isMax - True if dice should give max results, false otherwise
  * @returns 
  */
 function singleRoll(str, isMax=false) {
     let match = str.match(singleRollCapturingPattern);
-    if (!match) {return undefined};
+    if (!match) {
+        throw `Cannot parse ${str} as a valid roll.`;
+    }
     const sides = +match[2], times = +match[1] || 1, keep = +match[4] || 0, keepHighest = !match[3];
-
-    if (sides < 2 || times < 1 || keep < 0 || keep > times) {return undefined};
+    if (sides < 2) {
+        throw `Less than 2 sides in ${str}`;
+    }
+    if (times < 1) {
+        throw `Rolling less than 1 time in ${str}`;
+    }
+    if (keep < 0) {
+        throw `Cannot keep less 1 die in ${str}`;
+    }
+    if (keep > times) {
+        throw `Cannot keep more die than are rolled in ${str}`;
+    }
     let keepNotation = keep? `k${keepHighest? '' : 'l'}${keep}` : '';
     const notation = `${times}d${sides}${keepNotation}`;
     
@@ -31,10 +53,12 @@ function singleRoll(str, isMax=false) {
             kept: true,
         });
     }
-    if (keep) {
+    if (keep < times) {
         let discardedRolls = [...rolls];
         discardedRolls.sort((a, b) => a.num - b.num);
-        if (!keepHighest) {discardedRolls.reverse()};
+        if (!keepHighest) {
+            discardedRolls.reverse();
+        }
         discardedRolls.slice(0, keep).forEach(roll => roll.kept = false);
     }
     let keptRolls = rolls.filter(roll => roll.kept).map(roll => roll.num);
@@ -112,7 +136,9 @@ function compoundRoll(str, crit=false, critRule='addmaxdice') {
     });
     
     // tokenize str into compound roll tokens
-    if (!str.match(compoundRollPattern)) {return undefined};
+    if (!str.match(compoundRollPattern)) {
+        return undefined;
+    }
     res.tokens = str.match(compoundRollTokensPattern);
 
     // apply arguments
@@ -122,7 +148,7 @@ function compoundRoll(str, crit=false, critRule='addmaxdice') {
         }
     }
 
-    let tokensWithRolls = res.tokens.map(token => singleRoll(token, res.max || false) || token);
+    let tokensWithRolls = res.tokens.map(token => isSingleRoll(token)? singleRoll(token, res.max || false) : token);
     res.desc = tokensWithRolls.map(token => token.desc || token).join(' ');
     let tokensEvaluated = tokensWithRolls.map(token => token.result || token).join(' ');
     res.result = Function(`"use strict";return ${tokensEvaluated};`)();
@@ -133,7 +159,7 @@ function compoundRoll(str, crit=false, critRule='addmaxdice') {
 
     if (res.crit && res.cancrit) {
         function rollDouble(max=false) {
-            let extraRolls = res.tokens.filter(token => singleRoll(token, max));
+            let extraRolls = res.tokens.filter(token => isSingleRoll(token));
             extraRolls = extraRolls.map(token => singleRoll(token, max));
             res.critDesc = extraRolls.map(token => token.desc).join(' + ');
             res.critResult = extraRolls.map(token => token.result).reduce(sumReducer);
@@ -184,6 +210,8 @@ function aliasArgs(rolls, argsString) {
             }
             arg = `${arg.name}(${arg.params.join(',')})`;
             rolls[rollIndex] = rolls[rollIndex].concat(' ', arg);
+        } else {
+            throw `Unrecognized argument ${arg.name}`;
         }
     }
 }
@@ -194,24 +222,34 @@ function aliasCommand(tokens) {
     function listAliases() {
         const aliases = JSON.parse(localStorage.aliases);
         if (Object.keys(aliases).length === 0) {
-            return `No aliases.`;
+            return {message: `No aliases.`};
         }
-        return `Aliases: ${Object.keys(aliases).join(', ')}`;
+        return {message: `Aliases: ${Object.keys(aliases).join(', ')}`,};
     }
-    if (tokens.length < 1) {return listAliases()};
+    if (tokens.length < 1) {
+        return listAliases();
+    }
     let frontToken = tokens[0];
     tokens = tokens.slice(1);
     if (frontToken === 'delete') {
-        if (tokens.length < 1) {return `Error: must include target alias to delete.`};
+        if (tokens.length < 1) {
+            throw `Missing target alias to delete.`;
+        }
         const targetAlias = tokens[0];
-        if (!aliases[targetAlias]) {return `Error: alias ${targetAlias} does not exist.`};
+        if (!aliases[targetAlias]) {
+            throw `Alias ${targetAlias} does not exist.`;
+        }
         delete aliases[targetAlias];
         localStorage.setItem('aliases', JSON.stringify(aliases));
-        return `Removed ${targetAlias} from list of aliases.`;
+        return {message: `Removed ${targetAlias} from list of aliases.`};
     } 
-    if (frontToken === 'list') {return listAliases()};
+    if (frontToken === 'list') {
+        return listAliases();
+    }
     if (tokens.length < 1) {
-        if (!aliases[frontToken]) {return `Error: alias ${frontToken} does not exist.`};
+        if (!aliases[frontToken]) {
+            throw `Alias ${frontToken} does not exist.`;
+        }
         return `${frontToken}: ${aliases[frontToken].rolls.join(', ')}`;
     }
     let aliasCode = tokens.join(' ');
@@ -219,7 +257,7 @@ function aliasCommand(tokens) {
     aliasCode = aliasCode.replaceAll(aliasRollPattern, '');
     aliasArgs(aliases[frontToken].rolls, aliasCode);
     localStorage.setItem('aliases', JSON.stringify(aliases));
-    return `Added ${frontToken} to aliases.`;
+    return {message: `Added ${frontToken} to aliases.`};
 }
 
 
@@ -229,17 +267,23 @@ function callAlias(alias, argsString) {
     rolls = rolls.concat(Array.from(argsString.matchAll(aliasRollPattern), x => x[1]));
     aliasArgs(rolls, argsString);
     let crit = false;
-    return rolls.map(x => {
+    rolls = rolls.map(x => {
         let roll = compoundRoll(x, crit);
         crit = roll.crit || crit;
-        return roll.fullString;
-    }).join('<br>');
+        return roll;
+    });
+    return {
+        message: `Calling ${alias}`,
+        rolls,
+    };
 }
 
 
 function command(str) {
     let tokens = str.split(whitespacePattern);
-    if (tokens.length < 1) {return `Error: empty command.`};
+    if (tokens.length < 1) {
+        return `empty command.`;
+    }
     
     let frontToken = tokens[0];
     tokens = tokens.slice(1);
@@ -248,7 +292,10 @@ function command(str) {
     } else if (JSON.parse(localStorage.aliases)[frontToken]) {
         return callAlias(frontToken, Array.from(tokens).join(' '));
     } else {
-        return compoundRoll(str).fullString;
+        return {
+            message: `Rolling`,
+            rolls: [compoundRoll(str)],
+        };
     }
 }
 
@@ -269,8 +316,18 @@ document.addEventListener('DOMContentLoaded', () => {
         submitButton.disabled = rollTextInput.value.length < 1; 
     };
     rollForm.onsubmit = () => {
-        const output = command(rollTextInput.value) || `Error in: ${rollTextInput.value}`;
-        outputText.innerHTML = output;
+        try {
+            const output = command(rollTextInput.value);
+            if (output.rolls) {
+                outputText = output.rolls.map(x => x.fullString).join('<br>');
+            } else {
+                outputText = output.message;
+            }
+        } catch(err) {
+            outputText = err;
+        }
+        let element = <p>{outputText}</p>;
+        ReactDOM.render(element, document.getElementById('rolls-display'));
         rollTextInput.value = '';
         return false;
     };

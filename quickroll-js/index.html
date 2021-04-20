@@ -1,15 +1,101 @@
-<html lang="en">
+<!DOCTYPE html>
+<html>
     <head>
-        <title>Roll</title>
+        <title>QuickRoll</title>
         <meta charset="UTF-8">
+        <link rel="stylesheet" href="style.css" />
         <script src="roll.js"></script>
-        
+        <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>  
+        <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
     </head>
-    <body style="background:rgb(39, 39, 39);text-align:center;">
-        <form id="roll-form">
-        <input type="text" id="roll-text-input" placeholder="Roll" autofocus>
-            <button id="roll-submit-button" value="Roll">></button>
-            <p id="output" style="color:rgb(221, 221, 221)"></p>
+    <body class='c-container'>
+        <div id='overlay-lightbox' class='lightbox'>
+            <div id='overlay' class='modal'>
+                <h1>Options <button onclick="off()">Close</button></h1>
+                <h2>Crit Rules</h2>
+                <form method="post">
+                    <label>
+                        <input type="radio" id="rolltwice" name="crit_rule" value="rolltwice">
+                        Double the dice rolled.
+                    </label><br>
+                    <label>
+                        <input type="radio" id="addmaxdice" name="crit_rule" value="addmaxdice">
+                        Roll the dice normally, and then add the maximum dice roll.
+                    </label><br>
+                    <label>
+                        <input type="radio" id="doubledice" name="crit_rule" value="doubledice">
+                        Roll the dice normally, and then double them.
+                    </label><br>
+                    <input class='input' type='submit' name='save' value='save'>
+
+                </form>
+            </div>
+        </div>      
+        <script>
+            function on() {
+                document.getElementById("overlay-lightbox").style.display = "block";
+                document.getElementById("overlay").style.display = "block";
+            }
+            
+            function off() {
+                document.getElementById("overlay-lightbox").style.display = "none";
+                document.getElementById("overlay").style.display = "none";
+            } 
+        </script>
+
+
+        <h1>Quick Roll</h1>
+        <button onclick="on()">Options</button>
+        <form id='roll-form' method="post">
+            <input class='input input-text' type="text" name="command" id="roll-text-input" autofocus>
+            <input class='input input-text' type="text" name="times" id="roll-times-input" style="width:30px;" title="number of times to execute command">
+            <input class='input' type="submit" name="go" id="roll-submit-button" value=">">
         </form>
+        <div id='rolls-display' class='h-container'>
+            <div class='flex-child'>
+                <p id='output'></p>
+            </div>
+            <!-- {% for call in session['last'] %}
+                <section class='h-container flex-child' style='border:none; margin:10px; max-width:30%'>
+                        {% for roll in call %}
+                            {% if roll['is_roll'] %}
+                                <div class='flex-child tooltip' style='margin:-1px; margin-bottom:0px;'>
+                                    {% for image in roll['images'] %}
+                                        <img src={{ image }} height=60px>
+                                    {% endfor %}
+                                    <p>{{ roll['total'] }} <span style='font-size: .75em'>{{ roll['label'] }}</span></p>
+                                    <span class='tooltiptext'>{{ roll['str'] }}</span>
+                                </div>
+                            {% endif %} 
+                        {% endfor %}
+                </section>
+            {% endfor %} -->
+        </div>
+            <section class='h-container'>
+                <div class='flex-child aliases'>
+                    <form method=post enctype=multipart/form-data style="padding:5px;">
+                        <label class=h2>Aliases</label>
+                        <input class=input-file type=file name=import_file id=import_file>
+                        <label class=input for=import_file>Import</label>
+                    </form>
+                    <div id='alias-display'>
+                        <!-- {% for alias in session['aliases'] %}
+                            <p>{{alias}}</p>
+                        {% endfor %} -->
+                    </div>
+                </div>
+                <div class='flex-child log'>
+                    <form method="post">
+                        <label class=h2>Log</label>
+                        <input class=input type="submit" name="clear" value="Clear">
+                    </form>
+                    <div id='log-display' class='inner-log'>
+                        <!-- {% for roll in session['log'] %}
+                            <p>{{ roll }}</p>
+                        {% endfor %} -->
+                    </div>
+                </div>
+            </section>
+        </section>
     </body>
 </html>
