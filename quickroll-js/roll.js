@@ -1,5 +1,3 @@
-import React from 'react'
-
 "use strict"
 
 const sumReducer = (accumulator, currentValue) => accumulator + currentValue;
@@ -49,6 +47,7 @@ function singleRoll(str, isMax=false) {
     const rolls = [];
     for (let i = 0; i < times; i++) {
         rolls.push({
+            sides,
             num: isMax? sides : Math.ceil(Math.random() * sides),
             kept: true,
         });
@@ -66,6 +65,7 @@ function singleRoll(str, isMax=false) {
     return {
         sides,
         result,
+        rolls,
         desc: `${notation} (${rolls.map(roll => roll.num).join(', ')})`,
     };
 }
@@ -149,6 +149,8 @@ function compoundRoll(str, crit=false, critRule='addmaxdice') {
     }
 
     let tokensWithRolls = res.tokens.map(token => isSingleRoll(token)? singleRoll(token, res.max || false) : token);
+    res.dice = tokensWithRolls.filter(token => token.desc != undefined);
+    res.dice = [].concat(...res.dice.map(x => x.rolls))
     res.desc = tokensWithRolls.map(token => token.desc || token).join(' ');
     let tokensEvaluated = tokensWithRolls.map(token => token.result || token).join(' ');
     res.result = Function(`"use strict";return ${tokensEvaluated};`)();
@@ -173,11 +175,10 @@ function compoundRoll(str, crit=false, critRule='addmaxdice') {
         } else if (critRule == 'addmaxdice') {
             rollDouble(true);
         }
-        res.fullString =  `${res.desc} = ${res.result}<br>
-                           ${res.critDesc} = ${res.critResult}<br>
-                           ${res.result + res.critResult}${res.label}`;
+        res.fullString =  `${res.desc} = ${res.result}`;
+        res.critString = `CRIT! ${res.critDesc} = ${res.critResult}`;
     } else {
-        res.fullString = `${res.desc} = ${res.result} ${res.label}`;
+        res.fullString = `${res.desc} = ${res.result}`;
     }
     return res;
 }
@@ -241,7 +242,7 @@ function aliasCommand(tokens) {
         }
         delete aliases[targetAlias];
         localStorage.setItem('aliases', JSON.stringify(aliases));
-        return {message: `Removed ${targetAlias} from list of aliases.`};
+        return {message: `Removed ${targetAlias} from list of aliases.`, alias: targetAlias};
     } 
     if (frontToken === 'list') {
         return listAliases();
@@ -250,14 +251,14 @@ function aliasCommand(tokens) {
         if (!aliases[frontToken]) {
             throw `Alias ${frontToken} does not exist.`;
         }
-        return `${frontToken}: ${aliases[frontToken].rolls.join(', ')}`;
+        return {message: `${frontToken}: ${aliases[frontToken].rolls.join(', ')}`};
     }
     let aliasCode = tokens.join(' ');
     aliases[frontToken] = {rolls: Array.from(aliasCode.matchAll(aliasRollPattern), x => x[1])};
     aliasCode = aliasCode.replaceAll(aliasRollPattern, '');
     aliasArgs(aliases[frontToken].rolls, aliasCode);
     localStorage.setItem('aliases', JSON.stringify(aliases));
-    return {message: `Added ${frontToken} to aliases.`};
+    return {message: `Added ${frontToken} to aliases.`, alias: frontToken};
 }
 
 
@@ -298,37 +299,3 @@ function command(str) {
         };
     }
 }
-
-
-document.addEventListener('DOMContentLoaded', () => {
-    if (!localStorage.aliases) {
-        localStorage.setItem('aliases', JSON.stringify({}));
-    }
-
-    const rollTextInput = document.getElementById('roll-text-input');
-    const submitButton = document.getElementById('roll-submit-button');
-    submitButton.disabled = true;
-
-    const rollForm = document.getElementById('roll-form');
-    const outputText = document.getElementById('output');
-
-    rollTextInput.onkeyup = () => {
-        submitButton.disabled = rollTextInput.value.length < 1; 
-    };
-    rollForm.onsubmit = () => {
-        try {
-            const output = command(rollTextInput.value);
-            if (output.rolls) {
-                outputText = output.rolls.map(x => x.fullString).join('<br>');
-            } else {
-                outputText = output.message;
-            }
-        } catch(err) {
-            outputText = err;
-        }
-        let element = <p>{outputText}</p>;
-        ReactDOM.render(element, document.getElementById('rolls-display'));
-        rollTextInput.value = '';
-        return false;
-    };
-});

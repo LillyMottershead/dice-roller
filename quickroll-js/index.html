@@ -3,10 +3,171 @@
     <head>
         <title>QuickRoll</title>
         <meta charset="UTF-8">
-        <link rel="stylesheet" href="style.css" />
-        <script src="roll.js"></script>
+        <link rel="stylesheet" href="static/style.css" />
         <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>  
         <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+        <script src="https://unpkg.com/babel-standalone@6.26.0/babel.min.js"></script>
+        <script src="roll.js"></script>
+
+        <script type="text/babel">
+            class App extends React.Component {
+                constructor(props) {
+                    super(props);
+                    this.state = {
+                        rollCommand: '',
+                        times: '',
+                        output: '',
+                        aliases: JSON.parse(localStorage.aliases),
+                        log: [],
+                    };
+                    this.textInputRef = React.createRef();
+                    this.submit = this.submit.bind(this);
+                    this.onRollFormChange = this.onRollFormChange.bind(this);
+                }
+
+                onRollFormChange = (e => {
+                    const target = event.target;
+                    const value = target.value;
+                    const name = target.name;
+                    this.setState({[name]: value});
+                });
+                submit = (e => {
+                    e.preventDefault();
+                    function getRolls(rollCommand, index) {
+                        let output;
+                        try {
+                            output = command(rollCommand);
+                            if (output.rolls) {
+                                output = output.rolls.map((x,i) => <Roll key={`roll#${i}`} roll={x} />);
+                            } else {
+                                output = <div className='flex-child'>{output.message}</div>;
+                            }
+                        } catch(err) {
+                            output = err;
+                        }
+                        return <Call key={`call#${index}`} rolls={output} />
+                    }
+                    let times = +this.state.times || 1;
+                    let output = [...new Array(times).keys()].map((x,i) => getRolls(this.state.rollCommand, i));
+                    this.setState({aliases: JSON.parse(localStorage.aliases)}); //todo: a way to do this only when the aliases change?
+                    this.setState(state => state.log.push(output));
+                    this.setState(({
+                        rollCommand: '',
+                        times: '',
+                        output: output,
+                    }));
+                    this.textInputRef.current.focus();
+                });
+                
+                render() {
+                    console.log(this.state.log);
+                    return (
+                        <section>
+                            <RollForm 
+                                rollCommand={this.state.rollCommand} 
+                                times={this.state.times} 
+                                onRollFormChange={this.onRollFormChange} 
+                                submit={this.submit}
+                                textInputRef={this.textInputRef} />
+                            <section className='h-container'>
+                                {this.state.output}
+                            </section>
+                            <section className='h-container'>
+                                <Aliases aliases={this.state.aliases} />
+                                <Log />
+                            </section>
+                        </section>
+                    )
+                }
+            }
+
+            class RollForm extends React.Component {
+                render() {
+                    return (
+                        <form>
+                            <input className='input-text' type="text" ref={this.props.textInputRef} autoFocus name="rollCommand" value={this.props.rollCommand} onChange={this.props.onRollFormChange}/>
+                            <input className='input-text' type="text" style={{width:'30px'}} name="times" value={this.props.times} onChange={this.props.onRollFormChange}/>
+                            <input className='input' type="submit" value=">" onClick={this.props.submit} />
+                        </form>
+                    )
+                };
+            }
+
+            class Call extends React.Component {
+                render() {
+                    return (
+                        <section className='h-container flex-child' style={{border:'none', margin:'10px', maxWidth:'30%'}}>
+                            {this.props.rolls}
+                        </section>
+                    )
+                }
+            }
+
+            class Roll extends React.Component {
+                render() {                    
+                    let res = this.props.roll.result + (this.props.roll.critResult || 0);
+                    let label = this.props.roll.label || '';
+                    let fullString = this.props.roll.fullString || '';
+                    let critString = this.props.roll.critString || '';
+                    let dice = this.props.roll.dice.map((x,i) => <DieImage key={`rollImage#${i}}`} die={x} />);
+                    return (
+                        <div className='flex-child tooltip' style={{'margin':'-1px', 'marginBottom':'0px'}}>
+                            {dice}
+                            <p>{res}<span style={{fontSize:'.75em'}}> {label}</span></p>
+                            <span className='tooltiptext'>{fullString}<br />{critString}</span>
+                        </div>
+                    );
+                }
+            }
+
+            class DieImage extends React.Component {
+                render() {
+                    let fileName = 'static/';
+                    let colorOrGray = this.props.die.kept? 'dice/' : 'gray_dice/';
+                    fileName = `${fileName}${colorOrGray}d${this.props.die.sides}_${this.props.die.num}.svg`;
+                    return (
+                        <img src={fileName} height='50px' />
+                    );
+                }
+            }
+
+            class Aliases extends React.Component {
+                render() {
+                    let aliases = Object.keys(this.props.aliases).map(x => <p>{x}</p>);
+                    return (
+                        <div className='flex-child aliases'>
+                            <form style={{padding:'5px'}}>
+                                <label className='h2'>Aliases</label>
+                                <label className='input'>
+                                    <input className='input-file' type='file'/>
+                                    Import
+                                </label>
+                            </form>
+                            <div>
+                                {aliases}
+                            </div>
+                        </div>
+                    );
+                }
+            }
+
+            class Log extends React.Component {
+                render() {
+                    return (
+                        <div className='flex-child log'>
+                            <form>
+                                <label className='h2'>Log</label>
+                                <input className='input' type="submit" value="Clear" />
+                            </form>
+                            <div className='inner-log'>
+                            </div>
+                        </div>                        
+                    );
+                }
+            }
+
+            ReactDOM.render(<App />, document.getElementById('rolls-display'));
+        </script>
     </head>
     <body class='c-container'>
         <div id='overlay-lightbox' class='lightbox'>
@@ -46,56 +207,6 @@
 
         <h1>Quick Roll</h1>
         <button onclick="on()">Options</button>
-        <form id='roll-form' method="post">
-            <input class='input input-text' type="text" name="command" id="roll-text-input" autofocus>
-            <input class='input input-text' type="text" name="times" id="roll-times-input" style="width:30px;" title="number of times to execute command">
-            <input class='input' type="submit" name="go" id="roll-submit-button" value=">">
-        </form>
-        <div id='rolls-display' class='h-container'>
-            <div class='flex-child'>
-                <p id='output'></p>
-            </div>
-            <!-- {% for call in session['last'] %}
-                <section class='h-container flex-child' style='border:none; margin:10px; max-width:30%'>
-                        {% for roll in call %}
-                            {% if roll['is_roll'] %}
-                                <div class='flex-child tooltip' style='margin:-1px; margin-bottom:0px;'>
-                                    {% for image in roll['images'] %}
-                                        <img src={{ image }} height=60px>
-                                    {% endfor %}
-                                    <p>{{ roll['total'] }} <span style='font-size: .75em'>{{ roll['label'] }}</span></p>
-                                    <span class='tooltiptext'>{{ roll['str'] }}</span>
-                                </div>
-                            {% endif %} 
-                        {% endfor %}
-                </section>
-            {% endfor %} -->
-        </div>
-            <section class='h-container'>
-                <div class='flex-child aliases'>
-                    <form method=post enctype=multipart/form-data style="padding:5px;">
-                        <label class=h2>Aliases</label>
-                        <input class=input-file type=file name=import_file id=import_file>
-                        <label class=input for=import_file>Import</label>
-                    </form>
-                    <div id='alias-display'>
-                        <!-- {% for alias in session['aliases'] %}
-                            <p>{{alias}}</p>
-                        {% endfor %} -->
-                    </div>
-                </div>
-                <div class='flex-child log'>
-                    <form method="post">
-                        <label class=h2>Log</label>
-                        <input class=input type="submit" name="clear" value="Clear">
-                    </form>
-                    <div id='log-display' class='inner-log'>
-                        <!-- {% for roll in session['log'] %}
-                            <p>{{ roll }}</p>
-                        {% endfor %} -->
-                    </div>
-                </div>
-            </section>
-        </section>
+        <section id='rolls-display'>
     </body>
 </html>

@@ -117,16 +117,13 @@ h1 {
     text-transform: uppercase;
     font-size: 1.5em;
 }
-h2 {
+h2, .h2 {
     font-size: 1em;
     line-height: 1.2;
-}
-.h2 {
-    font-size: 1em;
     font-weight: bold;
 }
 
-.input {
+.input, .input-text {
     background: #2a2c31;
     color: #dcdee3;
     font-size: .8em;
