@@ -1,6 +1,9 @@
 "use strict"
 
+// Reducer for Array.reduce() that sums all elements in aray
 const sumReducer = (accumulator, currentValue) => accumulator + currentValue;
+
+// Regex patterns
 const singleRollCapturingPattern = /^(\d+)?d(\d+)(?:k([l-])?(\d+))?$/;
 const whitespacePattern = /\s+/;
 const compoundRollPattern = /^(?:(?:(?:\d+)?d\d+(?:k(?:[l-])?\d+)?)|[+\-*/()]|\d+|\s+)+$/;
@@ -9,6 +12,19 @@ const labelPattern = /\[(.*?)\]/g;
 const aliasRollPattern = /\{(.*?)\}/g;
 const argPattern = /(?:(\w+)(?:\((.*?)\))?)/g;
 
+const argNameToFunction = {
+    'add': add,
+    'replace': replace,
+    'adv': (compRoll) => replace(compRoll, 'd20', '2d20k1'),
+    'dis': (compRoll) => replace(compRoll, 'd20', '2d20kl1'),
+    'max': (compRoll) => compRoll.max = true,
+    'tohit': (compRoll, minToCrit = 20) => {
+        compRoll.tohit = true;
+        compRoll.minToCrit = minToCrit;
+    },
+    'cancrit': (compRoll) => compRoll.cancrit = true,
+    'crit': (compRoll) => compRoll.crit = true,
+}
 
 /**
  * @param {string} str - String to test for being in single roll notation 
@@ -74,8 +90,6 @@ function singleRoll(str, isMax=false) {
  * @param {Object} compRoll - The compound roll object
  * @param {string} extra - The extra roll string that should be added to the roll
  */
-function add(compRoll, extra) {
-    let extraTokens = extra.match(compoundRollTokensPattern);
     if (!'+-*/'.includes(extraTokens[0])) {
         compRoll.tokens.push('+');
     }
@@ -94,19 +108,6 @@ function replace(compRoll, target, repl) {
     }
 }
 
-const argNameToFunction = {
-    'add': add,
-    'replace': replace,
-    'adv': (compRoll) => replace(compRoll, 'd20', '2d20k1'),
-    'dis': (compRoll) => replace(compRoll, 'd20', '2d20kl1'),
-    'max': (compRoll) => compRoll.max = true,
-    'tohit': (compRoll, minToCrit = 20) => {
-        compRoll.tohit = true;
-        compRoll.minToCrit = minToCrit;
-    },
-    'cancrit': (compRoll) => compRoll.cancrit = true,
-    'crit': (compRoll) => compRoll.crit = true,
-}
 
 /**
  * @param {string} str - The compound roll string 
