@@ -18,7 +18,7 @@
                         times: '',
                         output: '',
                         aliases: JSON.parse(localStorage.aliases || '{}'),
-                        log: [],
+                        log: {components:[], currKey:0},
                     };
                     this.textInputRef = React.createRef();
                     this.onSubmit = this.onSubmit.bind(this);
@@ -42,30 +42,33 @@
                 onSubmit = (e => {
                     e.preventDefault();
                     function getRolls(rollCommand, index, log) {
+                        function pushToLog(log, message) {
+                            if (log.components.length > 100) {
+                                log.components.pop();
+                            }
+                            log.components.unshift(<p key={`log#${log.currKey++}`}>{message}</p>);
+                            log.currKey %= 101
+                        }
                         let output;
-                        log.reverse()
                         try {
                             output = command(rollCommand);
-                            log.push(<p>{output.message}</p>);
+                            pushToLog(log, output.message);
                             if (output.rolls) {
-                                log.push(...output.rolls.map(x => {
+                                output.rolls.forEach(x => {
                                     if (x.critString) {
-                                        return <p>{x.fullString} {x.critString} <b>{x.result} {x.label}</b></p>;
+                                        pushToLog(log, `${x.fullString} ${x.critString} <b>${x.result} ${x.label}</b>`);
+                                    } else {
+                                        pushToLog(log, `${x.desc} = ${x.result} ${x.label}`);
                                     }
-                                    return <p>{x.desc} = {x.result} {x.label}</p>;
-                                }));
+                                });
                                 output = output.rolls.map((x,i) => <Roll key={`roll#${i}`} roll={x} />);
                             } else {
                                 output = <div className='flex-child'>{output.message}</div>;
                             }
                         } catch(err) {
-                            log.push(<p>{err}</p>);
+                            pushToLog(log, err);
                             output = err;
                         }
-                        if (log.length > 100) {
-                            log.splice(0, log.length-100);
-                        }
-                        log.reverse();
                         return <Call key={`call#${index}`} rolls={output} />
                     }
                     let times = +this.state.times || 1;
@@ -94,7 +97,7 @@
                             </section>
                             <section className='h-container'>
                                 <Aliases aliases={this.state.aliases} handleUpload={this.handleUpload}/>
-                                <Log log={this.state.log} onLogClear={this.onLogClear}/>
+                                <Log log={this.state.log.components} onLogClear={this.onLogClear}/>
                             </section>
                         </section>
                     )
