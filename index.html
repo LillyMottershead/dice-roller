@@ -17,7 +17,7 @@
                         rollCommand: '',
                         times: '',
                         output: '',
-                        aliases: JSON.parse(localStorage.aliases),
+                        aliases: JSON.parse(localStorage.aliases || '{}'),
                         log: [],
                     };
                     this.textInputRef = React.createRef();
@@ -74,7 +74,7 @@
                         rollCommand: '',
                         times: '',
                         output: output,
-                        aliases: JSON.parse(localStorage.aliases),
+                        aliases: JSON.parse(localStorage.aliases || '{}'),
                         log: this.state.log,
                     }));
                     this.textInputRef.current.focus();
@@ -191,6 +191,9 @@
                 }
             }
 
+            if (!localStorage.aliases) {
+                localStorage.setItem('aliases', JSON.stringify({}))
+            }
             ReactDOM.render(<App />, document.getElementById('rolls-display'));
         </script>
     </head>
