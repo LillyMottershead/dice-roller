@@ -21,8 +21,10 @@
                         log: [],
                     };
                     this.textInputRef = React.createRef();
-                    this.submit = this.submit.bind(this);
+                    this.onSubmit = this.onSubmit.bind(this);
                     this.onRollFormChange = this.onRollFormChange.bind(this);
+                    this.onLogClear = this.onLogClear.bind(this);
+                    this.handleUpload = this.handleUpload.bind(this);
                 }
 
                 onRollFormChange = (e => {
@@ -31,50 +33,68 @@
                     const name = target.name;
                     this.setState({[name]: value});
                 });
-                submit = (e => {
+                onLogClear = (e => {
                     e.preventDefault();
-                    function getRolls(rollCommand, index) {
+                    this.setState({log: []});
+                });
+                handleUpload = (e => {
+                });
+                onSubmit = (e => {
+                    e.preventDefault();
+                    function getRolls(rollCommand, index, log) {
                         let output;
+                        log.reverse()
                         try {
                             output = command(rollCommand);
+                            log.push(<p>{output.message}</p>);
                             if (output.rolls) {
+                                log.push(...output.rolls.map(x => {
+                                    if (x.critString) {
+                                        return <p>{x.fullString} {x.critString} <b>{x.result} {x.label}</b></p>;
+                                    }
+                                    return <p>{x.desc} = {x.result} {x.label}</p>;
+                                }));
                                 output = output.rolls.map((x,i) => <Roll key={`roll#${i}`} roll={x} />);
                             } else {
                                 output = <div className='flex-child'>{output.message}</div>;
                             }
                         } catch(err) {
+                            log.push(<p>{err}</p>);
                             output = err;
                         }
+                        if (log.length > 100) {
+                            log.splice(0, log.length-100);
+                        }
+                        log.reverse();
                         return <Call key={`call#${index}`} rolls={output} />
                     }
                     let times = +this.state.times || 1;
-                    let output = [...new Array(times).keys()].map((x,i) => getRolls(this.state.rollCommand, i));
-                    this.setState({aliases: JSON.parse(localStorage.aliases)}); //todo: a way to do this only when the aliases change?
-                    this.setState(state => state.log.push(output));
+                    let output = [...new Array(times).keys()].map((x,i) => getRolls(this.state.rollCommand, i, this.state.log));
                     this.setState(({
                         rollCommand: '',
                         times: '',
                         output: output,
+                        aliases: JSON.parse(localStorage.aliases),
+                        log: this.state.log,
                     }));
                     this.textInputRef.current.focus();
                 });
                 
                 render() {
-                    console.log(this.state.log);
                     return (
                         <section>
                             <RollForm 
                                 rollCommand={this.state.rollCommand} 
                                 times={this.state.times} 
                                 onRollFormChange={this.onRollFormChange} 
-                                submit={this.submit}
+                                onSubmit={this.onSubmit}
                                 textInputRef={this.textInputRef} />
                             <section className='h-container'>
                                 {this.state.output}
                             </section>
                             <section className='h-container'>
-                                <Aliases aliases={this.state.aliases} />
-                                <Log />
+                                <Aliases aliases={this.state.aliases} handleUpload={this.handleUpload}/>
+                                <Log log={this.state.log} onLogClear={this.onLogClear}/>
                             </section>
                         </section>
                     )
@@ -87,7 +107,7 @@
                         <form>
                             <input className='input-text' type="text" ref={this.props.textInputRef} autoFocus name="rollCommand" value={this.props.rollCommand} onChange={this.props.onRollFormChange}/>
                             <input className='input-text' type="text" style={{width:'30px'}} name="times" value={this.props.times} onChange={this.props.onRollFormChange}/>
-                            <input className='input' type="submit" value=">" onClick={this.props.submit} />
+                            <input className='input' type="submit" value=">" onClick={this.props.onSubmit} />
                         </form>
                     )
                 };
@@ -133,15 +153,19 @@
 
             class Aliases extends React.Component {
                 render() {
-                    let aliases = Object.keys(this.props.aliases).map(x => <p>{x}</p>);
+                    let aliases = Object.keys(this.props.aliases);
+                    aliases.sort();
+                    aliases = aliases.map((x,i) => <p key={`alias#${i}`}>{x}</p>);
+                    let importButton = (
+                        <label className='input'>
+                            <input className='input-file' type='file' onChange={this.props.handleUpload}/>
+                            Import
+                        </label>
+                    );
                     return (
                         <div className='flex-child aliases'>
                             <form style={{padding:'5px'}}>
                                 <label className='h2'>Aliases</label>
-                                <label className='input'>
-                                    <input className='input-file' type='file'/>
-                                    Import
-                                </label>
                             </form>
                             <div>
                                 {aliases}
@@ -155,11 +179,12 @@
                 render() {
                     return (
                         <div className='flex-child log'>
-                            <form>
-                                <label className='h2'>Log</label>
-                                <input className='input' type="submit" value="Clear" />
-                            </form>
+                            <label className='h2'>
+                                Log
+                                <button className='input' onClick={this.props.onLogClear}>Clear</button>
+                            </label>
                             <div className='inner-log'>
+                                {this.props.log}
                             </div>
                         </div>                        
                     );
@@ -207,6 +232,6 @@
 
         <h1>Quick Roll</h1>
         <button onclick="on()">Options</button>
-        <section id='rolls-display'>
+        <section id='rolls-display'></section>
     </body>
 </html>

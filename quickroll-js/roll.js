@@ -156,7 +156,7 @@ function compoundRoll(str, crit=false, critRule='addmaxdice') {
     res.result = Function(`"use strict";return ${tokensEvaluated};`)();
 
     if (res.tohit) {
-        res.crit = tokensWithRolls.find(token => token.sides == 20).result == 20 || res.crit;
+        res.crit = tokensWithRolls.find(token => token.sides == 20).result >= res.minToCrit || res.crit;
     }
 
     if (res.crit && res.cancrit) {
@@ -176,7 +176,7 @@ function compoundRoll(str, crit=false, critRule='addmaxdice') {
             rollDouble(true);
         }
         res.fullString =  `${res.desc} = ${res.result}`;
-        res.critString = `CRIT! ${res.critDesc} = ${res.critResult}`;
+        res.critString = `CRIT: ${res.critDesc} = ${res.critResult}`;
     } else {
         res.fullString = `${res.desc} = ${res.result}`;
     }
@@ -218,6 +218,21 @@ function aliasArgs(rolls, argsString) {
 }
 
 
+function deleteCommand(tokens) {
+    const aliases = JSON.parse(localStorage.aliases);
+    if (tokens.length < 1) {
+        throw `Missing target alias to delete.`;
+    }
+    const targetAlias = tokens[0];
+    if (!aliases[targetAlias]) {
+        throw `Alias ${targetAlias} does not exist.`;
+    }
+    delete aliases[targetAlias];
+    localStorage.setItem('aliases', JSON.stringify(aliases));
+    return {message: `Removed ${targetAlias} from list of aliases.`, alias: targetAlias};
+}
+
+
 function aliasCommand(tokens) {
     const aliases = JSON.parse(localStorage.aliases);
     function listAliases() {
@@ -233,16 +248,7 @@ function aliasCommand(tokens) {
     let frontToken = tokens[0];
     tokens = tokens.slice(1);
     if (frontToken === 'delete') {
-        if (tokens.length < 1) {
-            throw `Missing target alias to delete.`;
-        }
-        const targetAlias = tokens[0];
-        if (!aliases[targetAlias]) {
-            throw `Alias ${targetAlias} does not exist.`;
-        }
-        delete aliases[targetAlias];
-        localStorage.setItem('aliases', JSON.stringify(aliases));
-        return {message: `Removed ${targetAlias} from list of aliases.`, alias: targetAlias};
+        return deleteCommand(tokens);
     } 
     if (frontToken === 'list') {
         return listAliases();
@@ -274,7 +280,7 @@ function callAlias(alias, argsString) {
         return roll;
     });
     return {
-        message: `Calling ${alias}`,
+        message: `Calling ${alias}:`,
         rolls,
     };
 }
@@ -290,11 +296,13 @@ function command(str) {
     tokens = tokens.slice(1);
     if (frontToken === 'alias') {
         return aliasCommand(tokens);
+    } else if (frontToken === 'delete') {
+        return deleteCommand(tokens);
     } else if (JSON.parse(localStorage.aliases)[frontToken]) {
         return callAlias(frontToken, Array.from(tokens).join(' '));
     } else {
         return {
-            message: `Rolling`,
+            message: `Rolling ${str}:`,
             rolls: [compoundRoll(str)],
         };
     }
