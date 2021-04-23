@@ -1,5 +1,7 @@
 ## quick dice
 
+# Note, this branch is has deprecated python/flask code which is being kept for future reference.
+
 # About
 
 This is a lightweight dice roller script, which helps players perform rolls and calculations quickly. It includes a basic aliasing system, which allows for quickly and easily creating sets of rolls.
