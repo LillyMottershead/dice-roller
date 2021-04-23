@@ -1,6 +1,6 @@
 ## quick dice
 
-# Note, this branch is has deprecated python/flask code which is being kept for future reference.
+# Note, this branch has deprecated python/flask code which is being kept for future reference.
 
 # About
 
