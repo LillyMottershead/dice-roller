@@ -140,7 +140,7 @@ function compoundRoll(str, crit=false, critRule='addmaxdice') {
     
     // tokenize str into compound roll tokens
     if (!str.match(compoundRollPattern)) {
-        return undefined;
+        throw `Unknown command.`
     }
     res.tokens = str.match(compoundRollTokensPattern);
 
