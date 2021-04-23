@@ -71,15 +71,24 @@
                         }
                         return <Call key={`call#${index}`} rolls={output} />
                     }
-                    let times = +this.state.times || 1;
-                    let output = [...new Array(times).keys()].map((x,i) => getRolls(this.state.rollCommand, i, this.state.log));
-                    this.setState(({
-                        rollCommand: '',
-                        times: '',
-                        output: output,
-                        aliases: JSON.parse(localStorage.aliases || '{}'),
-                        log: this.state.log,
-                    }));
+                    if (this.state.rollCommand === 'clear') {
+                        this.onLogClear(e);
+                        this.setState({
+                            rollCommand: '',
+                            times: '',
+                            output: '',
+                        });
+                    } else {
+                        let times = +this.state.times || 1;
+                        let output = [...new Array(times).keys()].map((x,i) => getRolls(this.state.rollCommand, i, this.state.log));
+                        this.setState({
+                            rollCommand: '',
+                            times: '',
+                            output: output,
+                            aliases: JSON.parse(localStorage.aliases || '{}'),
+                            log: this.state.log,
+                        });
+                    }
                     this.textInputRef.current.focus();
                 });
                 
