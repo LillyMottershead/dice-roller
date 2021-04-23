@@ -56,9 +56,9 @@
                             if (output.rolls) {
                                 output.rolls.forEach(x => {
                                     if (x.critString) {
-                                        pushToLog(log, `${x.fullString} ${x.critString} <b>${x.result} ${x.label}</b>`);
+                                        pushToLog(log, `${x.fullString}, ${x.critString}, ${x.result} ${x.label}`);
                                     } else {
-                                        pushToLog(log, `${x.desc} = ${x.result} ${x.label}`);
+                                        pushToLog(log, `${x.fullString} ${x.label}`);
                                     }
                                 });
                                 output = output.rolls.map((x,i) => <Roll key={`roll#${i}`} roll={x} />);
@@ -78,7 +78,7 @@
                             times: '',
                             output: '',
                         });
-                    } else {
+                    } else if (this.state.rollCommand !== ''){
                         let times = +this.state.times || 1;
                         let output = [...new Array(times).keys()].map((x,i) => getRolls(this.state.rollCommand, i, this.state.log));
                         this.setState({

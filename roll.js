@@ -290,10 +290,10 @@ function callAlias(alias, argsString) {
 
 
 function command(str) {
-    let tokens = str.split(whitespacePattern);
-    if (tokens.length < 1) {
-        return `empty command.`;
+    if (str === '') {
+        throw 'Empty command.';
     }
+    let tokens = str.split(whitespacePattern);
     
     let frontToken = tokens[0];
     tokens = tokens.slice(1);
