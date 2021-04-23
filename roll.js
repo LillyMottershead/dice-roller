@@ -90,6 +90,8 @@ function singleRoll(str, isMax=false) {
  * @param {Object} compRoll - The compound roll object
  * @param {string} extra - The extra roll string that should be added to the roll
  */
+function add(compRoll, extra) {
+    let extraTokens = extra.match(compoundRollTokensPattern);
     if (!'+-*/'.includes(extraTokens[0])) {
         compRoll.tokens.push('+');
     }
