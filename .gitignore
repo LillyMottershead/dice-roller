@@ -1,6 +1,9 @@
 .idea/
 .vscode/
 
+#build
+quickroll/build
+
 # dependencies
 quickroll/node_modules
 /.pnp
