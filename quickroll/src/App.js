@@ -48,7 +48,7 @@ class Main extends React.Component {
     });
     onLogClear = (e => {
         e.preventDefault();
-        this.setState({ log: [] });
+        this.setState({ log: {components: [], currKey: 0}});
     });
     onSubmit = (e => {
         e.preventDefault();
