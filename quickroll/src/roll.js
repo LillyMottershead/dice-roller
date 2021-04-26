@@ -1,5 +1,3 @@
-"use strict"
-
 // Reducer for Array.reduce() that sums all elements in aray
 const sumReducer = (accumulator, currentValue) => accumulator + currentValue;
 
@@ -26,12 +24,20 @@ const argNameToFunction = {
     'crit': (compRoll) => compRoll.crit = true,
 }
 
+function RollError(message) {
+    this.name = 'RollError';
+    this.message = message;
+    this.stack = (new Error()).stack;
+}
+RollError.prototype = new Error();
+
+
 /**
  * @param {string} str - String to test for being in single roll notation 
  * @returns {boolean} - True if the str is a single roll, false otherwise
  */
 function isSingleRoll(str) {
-    return str.match(singleRollCapturingPattern) != undefined;
+    return str.match(singleRollCapturingPattern) !== null;
 }
 
 /**
@@ -42,20 +48,20 @@ function isSingleRoll(str) {
 function singleRoll(str, isMax=false) {
     let match = str.match(singleRollCapturingPattern);
     if (!match) {
-        throw `Cannot parse ${str} as a valid roll.`;
+        throw new RollError(`Cannot parse ${str} as a valid roll.`);
     }
     const sides = +match[2], times = +match[1] || 1, keep = +match[4] || 0, keepHighest = !match[3];
     if (sides < 2) {
-        throw `Less than 2 sides in ${str}`;
+        throw new RollError(`Less than 2 sides in ${str}`);
     }
     if (times < 1) {
-        throw `Rolling less than 1 time in ${str}`;
+        throw new RollError(`Rolling less than 1 time in ${str}`);
     }
     if (keep < 0) {
-        throw `Cannot keep less 1 die in ${str}`;
+        throw new RollError(`Cannot keep less 1 die in ${str}`);
     }
     if (keep > times) {
-        throw `Cannot keep more die than are rolled in ${str}`;
+        throw new RollError(`Cannot keep more die than are rolled in ${str}`);
     }
     let keepNotation = keep? `k${keepHighest? '' : 'l'}${keep}` : '';
     const notation = `${times}d${sides}${keepNotation}`;
@@ -105,7 +111,7 @@ function add(compRoll, extra) {
  */
 function replace(compRoll, target, repl) {
     let index = compRoll.tokens.indexOf(target);
-    if (index != -1) {
+    if (index !== -1) {
         compRoll.tokens[compRoll.tokens.indexOf(target)] = repl;
     }
 }
@@ -140,7 +146,7 @@ function compoundRoll(str, crit=false, critRule='addmaxdice') {
     
     // tokenize str into compound roll tokens
     if (!str.match(compoundRollPattern)) {
-        throw `Unknown command.`
+        throw new RollError(`Unknown command.`);
     }
     res.tokens = str.match(compoundRollTokensPattern);
 
@@ -150,16 +156,15 @@ function compoundRoll(str, crit=false, critRule='addmaxdice') {
             argNameToFunction[arg.name](res, ...arg.params);
         }
     }
-
     let tokensWithRolls = res.tokens.map(token => isSingleRoll(token)? singleRoll(token, res.max || false) : token);
-    res.dice = tokensWithRolls.filter(token => token.desc != undefined);
+    res.dice = tokensWithRolls.filter(token => token.desc !== undefined);
     res.dice = [].concat(...res.dice.map(x => x.rolls))
     res.desc = tokensWithRolls.map(token => token.desc || token).join(' ');
     let tokensEvaluated = tokensWithRolls.map(token => token.result || token).join(' ');
-    res.result = Function(`"use strict";return ${tokensEvaluated};`)();
+    res.result = Function(`return ${tokensEvaluated};`)();
 
     if (res.tohit) {
-        res.crit = tokensWithRolls.find(token => token.sides == 20).result >= res.minToCrit || res.crit;
+        res.crit = tokensWithRolls.find(token => token.sides === 20).result >= res.minToCrit || res.crit;
     }
 
     if (res.crit && res.cancrit) {
@@ -169,13 +174,13 @@ function compoundRoll(str, crit=false, critRule='addmaxdice') {
             res.critDesc = extraRolls.map(token => token.desc).join(' + ');
             res.critResult = extraRolls.map(token => token.result).reduce(sumReducer);
         }
-        if (critRule == 'rolldouble') {
+        if (critRule === 'rolldouble') {
             rollDouble();
-        } else if (critRule == 'doubledice') {
-            let rolls = tokensWithRolls.filter(token => (typeof token) == 'object');
+        } else if (critRule === 'doubledice') {
+            let rolls = tokensWithRolls.filter(token => (typeof token) === 'object');
             res.critDesc = rolls.map(token => token.desc).join(' + ');
             res.critResult = rolls.map(token => token.result).reduce(sumReducer);
-        } else if (critRule == 'addmaxdice') {
+        } else if (critRule === 'addmaxdice') {
             rollDouble(true);
         }
         res.fullString =  `${res.desc} = ${res.result}`;
@@ -196,17 +201,17 @@ function aliasArgs(rolls, argsString) {
     });
 
     for (let arg of args) {
-        if (arg.name == 'attack') {
+        if (arg.name === 'attack') {
             rolls[0] = rolls[0].concat(' tohit');
             let cancrit = arg.params;
-            if (cancrit.length == 0) {
+            if (cancrit.length === 0) {
                 cancrit = [...new Array(rolls.length).keys()].slice(1);
             }
             cancrit.forEach(x => rolls[x] = rolls[x].concat(' cancrit'));
         } else if (Object.keys(argNameToFunction).includes(arg.name)) {
             let argFunction = argNameToFunction[arg.name];
             let rollIndex;
-            if (arg.params.length == argFunction.length - 1) {
+            if (arg.params.length === argFunction.length - 1) {
                 rollIndex = 0;
             } else {
                 rollIndex = +arg.params[arg.params.length - 1] - 1;
@@ -215,7 +220,7 @@ function aliasArgs(rolls, argsString) {
             arg = `${arg.name}(${arg.params.join(',')})`;
             rolls[rollIndex] = rolls[rollIndex].concat(' ', arg);
         } else {
-            throw `Unrecognized argument ${arg.name}`;
+            throw new RollError(`Unrecognized argument ${arg.name}`);
         }
     }
 }
@@ -224,11 +229,11 @@ function aliasArgs(rolls, argsString) {
 function deleteCommand(tokens) {
     const aliases = JSON.parse(localStorage.aliases);
     if (tokens.length < 1) {
-        throw `Missing target alias to delete.`;
+        throw new RollError(`Missing target alias to delete.`);
     }
     const targetAlias = tokens[0];
     if (!aliases[targetAlias]) {
-        throw `Alias ${targetAlias} does not exist.`;
+        throw new RollError(`Alias ${targetAlias} does not exist.`);
     }
     delete aliases[targetAlias];
     localStorage.setItem('aliases', JSON.stringify(aliases));
@@ -258,7 +263,7 @@ function aliasCommand(tokens) {
     }
     if (tokens.length < 1) {
         if (!aliases[frontToken]) {
-            throw `Alias ${frontToken} does not exist.`;
+            throw new RollError(`Alias ${frontToken} does not exist.`);
         }
         return {message: `${frontToken}: ${aliases[frontToken].rolls.join(', ')}`};
     }
@@ -291,7 +296,7 @@ function callAlias(alias, argsString) {
 
 function command(str) {
     if (str === '') {
-        throw 'Empty command.';
+        throw new RollError('Empty command.');
     }
     let tokens = str.split(whitespacePattern);
     
@@ -310,3 +315,5 @@ function command(str) {
         };
     }
 }
+
+export default command;

@@ -1,0 +1,156 @@
+html, body {
+  min-height: 100%;
+  width: 90%;
+  max-width: 1200px;
+  margin: auto;
+  background: #353741;
+  color: #dcdee3;
+  font-family: Helvetica, Verdana, Arial, sans-serif;
+  text-align: center;
+}
+body {
+  position: relative;
+}
+.lightbox {
+  content: "";
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 10;
+  background-color: rgba(0,0,0,0.5);
+}
+.modal {
+  display: none;
+  width: 50%;
+  height: 50%;
+  position: fixed;
+  top: 50%; 
+  left: 50%;
+  margin-top: -12.5%;
+  margin-left: -25%;
+  background-color:#353741;
+  z-index: 11; /* 1px higher than the overlay layer */
+
+  padding: .7em;
+  text-align: left;
+}
+
+div {
+  background: #2a2c31;
+  margin: auto;
+}
+.h-container {
+  margin: auto;
+  display: flex;
+  flex-flow: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 100%;
+}
+.flex-child {
+  border: 1px #6b6c75 solid;
+  padding: .7em;
+  margin: 1em;
+  flex: 0 0 fit-content;
+}
+.aliases {
+  flex: 0 0 200px;
+}
+.log {
+  text-align: left;
+  flex: 1 1;
+  overflow-y: hidden;
+}
+.inner-log {
+  font-family: 'Courier New', Courier, monospace;
+  display: flex;
+  flex-flow: column-reverse;
+  overflow-y: auto;
+  height: 400px;
+  max-height: 400px;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 200px;
+  top: 100%;
+  left: 50%;
+  margin-left: -105px;
+  margin-top: 8px;
+  padding: 5px 5px;
+  border-radius: 6px;
+  background-color: #16171b;
+  color: #fff;
+  text-align: center;
+  font-size: .75em;
+
+  position: absolute;
+  z-index: 1;
+}
+.tooltip:hover .tooltiptext{
+  visibility: visible;
+}
+.tooltip .tooltiptext::after {
+  content: " ";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent black transparent;
+}
+
+h1, h2, p, .h2 {
+  padding: .2em;
+  line-height: 1;
+  margin: 0;
+}
+h1 {
+  text-transform: uppercase;
+  font-size: 1.5em;
+}
+h2, .h2 {
+  font-size: 1em;
+  line-height: 1.2;
+  font-weight: bold;
+}
+
+.input, .input-text {
+  background: #2a2c31;
+  color: #dcdee3;
+  font-size: .8em;
+  font-family: Helvetica, Verdana, Arial, sans-serif;
+  border: 1px #6b6c75 solid;
+  padding: 5px;
+  margin: 1px;
+  cursor: pointer;
+}
+.input-text {
+  width: 80%;
+  max-width: 50em;
+  cursor: text;
+}
+.input-file {
+width: 0.1px;
+height: 0.1px;
+opacity: 0;
+overflow: hidden;
+position: absolute;
+z-index: -1;
+}
+.input-file:focus + .input {
+  border: 1px #dcdee3 solid;
+}
+
+
+img {
+  padding: 5px;
+}
