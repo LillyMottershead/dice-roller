@@ -2,7 +2,6 @@ import React from 'react';
 import './App.css';
 import command from './roll.js';
 
-
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -15,6 +14,7 @@ class App extends React.Component {
         return (
             <section>
                 <h1>quickroll</h1>
+                <button className='input' onClick={this.onSettingsClick}>settings</button>
                 <Main />
             </section>
         )
@@ -164,11 +164,13 @@ class Roll extends React.Component {
 
 class DieImage extends React.Component {
     render() {
-        let fileName = 'static/';
+        let fileName = process.env.PUBLIC_URL;
         let colorOrGray = this.props.die.kept ? 'dice/' : 'gray_dice/';
-        fileName = `${fileName}${colorOrGray}d${this.props.die.sides}_${this.props.die.num}.svg`;
+        let sides = this.props.die.sides;
+        let result = this.props.die.num;
+        fileName = `${fileName}/${colorOrGray}d${sides}_${result}.svg`;
         return (
-            <img src={fileName} alt={`dice: ${fileName}`} height='50px' />
+            <img src={fileName} alt={`${result} (d${sides})`} height='50px' />
         );
     }
 }
