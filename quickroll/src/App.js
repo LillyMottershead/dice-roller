@@ -14,7 +14,6 @@ class App extends React.Component {
         return (
             <section>
                 <h1>quickroll</h1>
-                <button className='input' onClick={this.onSettingsClick}>settings</button>
                 <Main />
             </section>
         )
