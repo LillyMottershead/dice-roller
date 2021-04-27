@@ -24,9 +24,6 @@ class App extends React.Component {
 class Main extends React.Component {
     constructor(props) {
         super(props);
-        if (!localStorage.aliases) {
-            localStorage.setItem('aliases', JSON.stringify({}))
-        }
         this.state = {
             rollCommand: '',
             times: '',
@@ -97,7 +94,6 @@ class Main extends React.Component {
                 times: '',
                 output: output,
                 aliases: JSON.parse(localStorage.aliases || '{}'),
-                log: this.state.log,
             });
         }
         this.textInputRef.current.focus();
@@ -123,90 +119,78 @@ class Main extends React.Component {
     )}
 }
 
-class RollForm extends React.Component {
-    render() {
-        return (
-            <form>
-                <input className='input-text' type="text" ref={this.props.textInputRef} autoFocus name="rollCommand" value={this.props.rollCommand} onChange={this.props.onRollFormChange} />
-                <input className='input-text' type="text" style={{ width: '30px' }} name="times" value={this.props.times} onChange={this.props.onRollFormChange} />
-                <input className='input' type="submit" value=">" onClick={this.props.onSubmit} />
+function RollForm(props) {
+    return (
+        <form>
+            <input className='input-text' type="text" ref={props.textInputRef} autoFocus name="rollCommand" value={props.rollCommand} onChange={props.onRollFormChange} />
+            <input className='input-text' type="text" style={{ width: '30px' }} name="times" value={props.times} onChange={props.onRollFormChange} />
+            <input className='input' type="submit" value=">" onClick={props.onSubmit} />
+        </form>
+    );
+};
+
+function Call(props) {
+    return (
+        <section className='h-container flex-child' style={{ border: 'none', margin: '10px', maxWidth: '30%' }}>
+            {props.rolls}
+        </section>
+    )
+}
+
+function Roll(props) {
+    let res = props.roll.result + (props.roll.critResult || 0);
+    let label = props.roll.label || '';
+    let fullString = props.roll.fullString || '';
+    let critString = props.roll.critString || '';
+    let dice = props.roll.dice.map((x, i) => <DieImage key={`rollImage#${i}}`} die={x} />);
+    return (
+        <div className='flex-child tooltip' style={{ 'margin': '-1px', 'marginBottom': '0px' }}>
+            {dice}
+            <p>{res}<span style={{ fontSize: '.75em' }}> {label}</span></p>
+            <span className='tooltiptext'>{fullString}<br />{critString}</span>
+        </div>
+    );
+}
+
+function DieImage(props) {
+    let fileName = process.env.PUBLIC_URL;
+    let colorOrGray = props.die.kept ? 'dice/' : 'gray_dice/';
+    let sides = props.die.sides;
+    let result = props.die.num;
+    fileName = `${fileName}/${colorOrGray}d${sides}_${result}.svg`;
+    return (
+        <img src={fileName} alt={`${result} (d${sides})`} height='50px' />
+    );
+}
+
+function Aliases(props) {
+    let aliases = Object.keys(props.aliases);
+    aliases.sort();
+    aliases = aliases.map((x, i) => <p key={`alias#${i}`}>{x}</p>);
+    return (
+        <div className='flex-child aliases'>
+            <form style={{ padding: '5px' }}>
+                <label className='h2'>Aliases</label>
             </form>
-        );
-    };
-}
-
-class Call extends React.Component {
-    render() {
-        return (
-            <section className='h-container flex-child' style={{ border: 'none', margin: '10px', maxWidth: '30%' }}>
-                {this.props.rolls}
-            </section>
-        )
-    }
-}
-
-class Roll extends React.Component {
-    render() {
-        let res = this.props.roll.result + (this.props.roll.critResult || 0);
-        let label = this.props.roll.label || '';
-        let fullString = this.props.roll.fullString || '';
-        let critString = this.props.roll.critString || '';
-        let dice = this.props.roll.dice.map((x, i) => <DieImage key={`rollImage#${i}}`} die={x} />);
-        return (
-            <div className='flex-child tooltip' style={{ 'margin': '-1px', 'marginBottom': '0px' }}>
-                {dice}
-                <p>{res}<span style={{ fontSize: '.75em' }}> {label}</span></p>
-                <span className='tooltiptext'>{fullString}<br />{critString}</span>
+            <div>
+                {aliases}
             </div>
-        );
-    }
+        </div>
+    );
 }
 
-class DieImage extends React.Component {
-    render() {
-        let fileName = process.env.PUBLIC_URL;
-        let colorOrGray = this.props.die.kept ? 'dice/' : 'gray_dice/';
-        let sides = this.props.die.sides;
-        let result = this.props.die.num;
-        fileName = `${fileName}/${colorOrGray}d${sides}_${result}.svg`;
-        return (
-            <img src={fileName} alt={`${result} (d${sides})`} height='50px' />
-        );
-    }
-}
-
-class Aliases extends React.Component {
-    render() {
-        let aliases = Object.keys(this.props.aliases);
-        aliases.sort();
-        aliases = aliases.map((x, i) => <p key={`alias#${i}`}>{x}</p>);
-        return (
-            <div className='flex-child aliases'>
-                <form style={{ padding: '5px' }}>
-                    <label className='h2'>Aliases</label>
-                </form>
-                <div>
-                    {aliases}
-                </div>
+function Log(props) {
+    return (
+        <div className='flex-child log'>
+            <label className='h2'>
+                Log
+            <button className='input' onClick={props.onLogClear}>Clear</button>
+            </label>
+            <div className='inner-log'>
+                {props.log}
             </div>
-        );
-    }
-}
-
-class Log extends React.Component {
-    render() {
-        return (
-            <div className='flex-child log'>
-                <label className='h2'>
-                    Log
-                  <button className='input' onClick={this.props.onLogClear}>Clear</button>
-                </label>
-                <div className='inner-log'>
-                    {this.props.log}
-                </div>
-            </div>
-        );
-    }
+        </div>        
+    );
 }
 
 export default App;
