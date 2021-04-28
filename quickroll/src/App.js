@@ -172,33 +172,27 @@ class Settings extends React.Component {
         if (!this.props.show) {
             return null;
         }
+        function critRuleRadioButton(value, content, props) {
+            return (
+                <RadioButton 
+                    name='critRule'
+                    value={ value } 
+                    onChange={ props.onSettingsChange }
+                    content={ content }
+                    checked={ props.settings.critRule === value }
+                />
+            );
+        }
         return (
             <section>
                 <div className='panel' style={{ textAlign: 'left' }}>
                     <h2 style={{ textAlign: 'center'}}> Settings </h2>
                     <h3> Crit Rule </h3>
+                    <i style={{ fontSize: '.75em' }}>Note that this only applies to future rolls.</i>
                     <form>
-                        <RadioButton 
-                            name='critRule'
-                            value='rolldouble'
-                            onChange={this.props.onSettingsChange}
-                            content='Roll double the number of dice.'
-                            checked={this.props.settings.critRule === 'rolldouble'}
-                        /><br />
-                        <RadioButton 
-                            name='critRule'
-                            value='doubledice'
-                            onChange={this.props.onSettingsChange}
-                            content='Roll the dice normally and double them.'
-                            checked={this.props.settings.critRule === 'doubledice'}
-                        /><br />
-                        <RadioButton 
-                            name='critRule'
-                            value='addmaxdice'
-                            onChange={this.props.onSettingsChange}
-                            content='Roll the dice normally and add the maximum possible dice roll on top.'
-                            checked={this.props.settings.critRule === 'addmaxdice'}
-                        />
+                        { critRuleRadioButton('rolldouble', 'Roll double the number of dice.', this.props) }<br />
+                        { critRuleRadioButton('doubledice', 'Roll the dice normally and double them.', this.props) }<br />
+                        { critRuleRadioButton('addmaxdice', 'Roll the dice normally and add the maximum possible dice roll on top.', this.props) }<br />
                     </form>
                 </div>
             </section>
