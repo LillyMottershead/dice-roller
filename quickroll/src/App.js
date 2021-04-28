@@ -6,17 +6,49 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         if (!localStorage.aliases) {
-            localStorage.setItem('aliases', JSON.stringify({}))
+            localStorage.setItem('aliases', JSON.stringify({}));
         }
+        if (!localStorage.settings || localStorage.settings === undefined) {
+            localStorage.setItem('settings', JSON.stringify({critRule: 'rolldouble'}));
+        }
+        this.state = {
+            page: 'roller',
+            settings: JSON.parse(localStorage.settings),
+        };
+        this.onPageClick = this.onPageClick.bind(this);
+        this.onSettingsChange = this.onSettingsChange.bind(this);
     }
-    
+
+    onPageClick(e) {
+        this.setState({
+            page: e.target.name,
+        });
+    }
+    onSettingsChange(e) {
+        let settings = this.state.settings;
+        settings[e.target.name] = e.target.value;
+        this.setState({
+            settings: settings,
+        });
+        localStorage.setItem('settings', JSON.stringify(settings));
+    }
+
     render() {
         return (
             <section>
-                <h1>quickroll</h1>
-                <Main />
+                <h1> quickroll </h1>
+                <span>
+                    <button className='panel input' name='roller' onClick={this.onPageClick}>
+                        Roller
+                    </button>
+                    <button className='panel input' name='settings' onClick={this.onPageClick}>
+                        Settings
+                    </button>
+                </span>
+                <Main show={this.state.page === 'roller'} settings={this.state.settings}/>
+                <Settings show={this.state.page === 'settings'} settings={this.state.settings} onSettingsChange={this.onSettingsChange}/>
             </section>
-        )
+        );
     }
 }
 
@@ -26,8 +58,8 @@ class Main extends React.Component {
         this.state = {
             rollCommand: '',
             times: '',
-            output: '',
-            aliases: JSON.parse(localStorage.aliases || '{}'),
+            output: { calls: [], currKey: 0},
+            aliases: JSON.parse(localStorage.aliases || '{ }'),
             log: { components: [], currKey: 0 },
         };
         this.textInputRef = React.createRef();
@@ -35,105 +67,212 @@ class Main extends React.Component {
         this.onRollFormChange = this.onRollFormChange.bind(this);
         this.onLogClear = this.onLogClear.bind(this);
     }
-    
-    onRollFormChange = (e => {
+
+    onRollFormChange = e => {
         const target = e.target;
         const value = target.value;
         const name = target.name;
-        this.setState({ [name]: value });
-    });
-    onLogClear = (e => {
+        this.setState({ [name]: value, });
+    };
+    onLogClear = e => {
         e.preventDefault();
-        this.setState({ log: {components: [], currKey: 0}});
-    });
-    onSubmit = (e => {
+        this.setState({ log: { components: [], currKey: 0 } });
+    };
+    onSubmit = e => {
         e.preventDefault();
-        function getRolls(rollCommand, index, log) {
+
+        function getRolls(rollCommand, index, log, critRule) {
             function pushToLog(log, message) {
                 if (log.components.length > 100) {
                     log.components.pop();
                 }
-                log.components.unshift(<p key={`log#${log.currKey++}`}>{message}</p>);
-                log.currKey %= 101
+                log.components.unshift(<p key={`log#${log.currKey++}`}> {message} </p>);
+                log.currKey %= 101;
             }
             let output;
             try {
-                output = command(rollCommand);
+                output = command(rollCommand, critRule);
                 pushToLog(log, output.message);
                 if (output.rolls) {
                     output.rolls.forEach(x => {
+                        let message;
                         if (x.critString) {
-                            pushToLog(log, `${x.fullString}, ${x.critString}, ${x.result} ${x.label}`);
+                            message = `${x.fullString}, ${x.critString}, ${x.result} ${x.label}`;
                         } else {
-                            pushToLog(log, `${x.fullString} ${x.label}`);
+                            message = `${x.fullString} ${x.label}`
                         }
+                        pushToLog(log, message);
                     });
                     output = output.rolls.map((x, i) => <Roll key={`roll#${i}`} roll={x} />);
                 } else {
-                    output = <div className='flex-child'>{output.message}</div>;
+                    output = <div className='panel flex-child'> {output.message} </div>;
                 }
             } catch (err) {
                 pushToLog(log, err.message);
-                output = err.message;
+                output = <div className='panel flex-child'> {err.message} </div>;
             }
-            return <Call key={`call#${index}`} rolls={output} />
+            return <Call key={`call#${index}`} rolls={output} />;
         }
         if (this.state.rollCommand === 'clear') {
+            this.setState({
+                rollCommand: '',
+                times: '',
+                output: {calls: [], currKey: 0},
+            });
+        } else if (this.state.rollCommand === 'clear log') {
             this.onLogClear(e);
             this.setState({
                 rollCommand: '',
                 times: '',
-                output: '',
             });
         } else if (this.state.rollCommand !== '') {
             let times = +this.state.times || 1;
-            let output = [...new Array(times).keys()].map((x, i) => getRolls(this.state.rollCommand, i, this.state.log));
+            let newOutput = [...new Array(times).keys()].map((x, i) =>
+                getRolls(this.state.rollCommand, this.state.output.currKey + i, this.state.log, this.props.settings.critRule)
+            );
             this.setState({
                 rollCommand: '',
                 times: '',
-                output: output,
-                aliases: JSON.parse(localStorage.aliases || '{}'),
+                output: {calls: [...this.state.output.calls, ...newOutput], currKey: this.state.output.currKey + newOutput.length},
+                aliases: JSON.parse(localStorage.aliases || '{ }'),
+                log: this.state.log,
             });
         }
         this.textInputRef.current.focus();
-    });
+    };
 
     render() {
+        if (!this.props.show) {
+            return null;
+        }
         return (
             <section>
-                    <RollForm
-                        rollCommand={this.state.rollCommand}
-                        times={this.state.times}
-                        onRollFormChange={this.onRollFormChange}
-                        onSubmit={this.onSubmit}
-                        textInputRef={this.textInputRef} />
-                    <section className='h-container'>
-                        {this.state.output}
-                    </section>
-                    <section className='h-container'>
-                        <Aliases aliases={this.state.aliases} handleUpload={this.handleUpload} />
-                        <Log log={this.state.log.components} onLogClear={this.onLogClear} />
-                    </section>
+                <RollForm
+                    rollCommand={this.state.rollCommand}
+                    times={this.state.times}
+                    onRollFormChange={this.onRollFormChange}
+                    onSubmit={this.onSubmit}
+                    textInputRef={this.textInputRef}
+                />
+                <section className='h-container'> {this.state.output.calls} </section>
+                <section className='h-container'>
+                    <Aliases
+                        aliases={this.state.aliases}
+                        handleUpload={this.handleUpload}
+                    />
+                    <Log log={this.state.log.components} onLogClear={this.onLogClear} />
+                </section>
             </section>
-    )}
+        );
+    }
+}
+
+class Settings extends React.Component {
+    render() {
+        if (!this.props.show) {
+            return null;
+        }
+        return (
+            <section>
+                <div className='panel' style={{ textAlign: 'left' }}>
+                    <h2 style={{ textAlign: 'center'}}> Settings </h2>
+                    <h3> Crit Rule </h3>
+                    <form>
+                        <RadioButton 
+                            name='critRule'
+                            value='rolldouble'
+                            onChange={this.props.onSettingsChange}
+                            content='Roll double the number of dice.'
+                            checked={this.props.settings.critRule === 'rolldouble'}
+                        /><br />
+                        <RadioButton 
+                            name='critRule'
+                            value='doubledice'
+                            onChange={this.props.onSettingsChange}
+                            content='Roll the dice normally and double them.'
+                            checked={this.props.settings.critRule === 'doubledice'}
+                        /><br />
+                        <RadioButton 
+                            name='critRule'
+                            value='addmaxdice'
+                            onChange={this.props.onSettingsChange}
+                            content='Roll the dice normally and add the maximum possible dice roll on top.'
+                            checked={this.props.settings.critRule === 'addmaxdice'}
+                        />
+                    </form>
+                </div>
+            </section>
+        );
+    }
+}
+
+function RadioButton(props) {
+    if (props.checked) {
+        return (
+            <label>
+                <input 
+                    type='radio'
+                    name={props.name}
+                    value={props.value}
+                    onChange={props.onChange}
+                    checked
+                />
+                {props.content}
+            </label>
+        );        
+    }
+    return (
+        <label>
+            <input 
+                type='radio'
+                name={props.name}
+                value={props.value}
+                onChange={props.onChange}
+            />
+            {props.content}
+        </label>
+    );
 }
 
 function RollForm(props) {
     return (
-        <form>
-            <input className='input-text' type="text" ref={props.textInputRef} autoFocus name="rollCommand" value={props.rollCommand} onChange={props.onRollFormChange} />
-            <input className='input-text' type="text" style={{ width: '30px' }} name="times" value={props.times} onChange={props.onRollFormChange} />
-            <input className='input' type="submit" value=">" onClick={props.onSubmit} />
+        <form style={{ margin: '10px' }}>
+            <input
+                className='panel input-text'
+                type='text'
+                ref={props.textInputRef}
+                autoFocus
+                name='rollCommand'
+                value={props.rollCommand}
+                onChange={props.onRollFormChange}
+            />
+            <input
+                className='panel input-text'
+                type='text'
+                style={{ width: '30px' }}
+                name='times'
+                value={props.times}
+                onChange={props.onRollFormChange}
+            />
+            <input
+                className='panel input'
+                type='submit'
+                value='>'
+                onClick={props.onSubmit}
+            />
         </form>
     );
-};
+}
 
 function Call(props) {
     return (
-        <section className='h-container flex-child' style={{ border: 'none', margin: '10px', maxWidth: '30%' }}>
+        <section
+            className='h-container flex-child'
+            style={{ border: 'none', margin: '10px', maxWidth: '30%' }}
+        >
             {props.rolls}
         </section>
-    )
+    );
 }
 
 function Roll(props) {
@@ -143,10 +282,17 @@ function Roll(props) {
     let critString = props.roll.critString || '';
     let dice = props.roll.dice.map((x, i) => <DieImage key={`rollImage#${i}}`} die={x} />);
     return (
-        <div className='flex-child tooltip' style={{ 'margin': '-1px', 'marginBottom': '0px' }}>
+        <div
+            className='panel flex-child tooltip'
+            style={{ margin: '-1px', marginBottom: '0px' }}
+        >
             {dice}
-            <p>{res}<span style={{ fontSize: '.75em' }}> {label}</span></p>
-            <span className='tooltiptext'>{fullString}<br />{critString}</span>
+            <p>
+                {res} <span style={{ fontSize: '.75em' }}> {label} </span>
+            </p>
+            <span className='tooltiptext'>
+                {fullString} <br /> {critString}
+            </span>
         </div>
     );
 }
@@ -157,38 +303,36 @@ function DieImage(props) {
     let sides = props.die.sides;
     let result = props.die.num;
     fileName = `${fileName}/${colorOrGray}d${sides}_${result}.svg`;
-    return (
-        <img src={fileName} alt={`${result} (d${sides})`} height='50px' />
-    );
+    return <img src={fileName} alt={`${result} (d${sides})`} height='50px' />;
 }
 
 function Aliases(props) {
     let aliases = Object.keys(props.aliases);
     aliases.sort();
-    aliases = aliases.map((x, i) => <p key={`alias#${i}`}>{x}</p>);
+    aliases = aliases.map((x, i) => <p key={`alias#${i}`}> {x} </p>);
     return (
-        <div className='flex-child aliases'>
+        <div className='panel flex-child aliases'>
             <form style={{ padding: '5px' }}>
-                <label className='h2'>Aliases</label>
+                <label className='h2'> Aliases </label>
             </form>
-            <div>
-                {aliases}
-            </div>
+            <div> {aliases} </div>
         </div>
     );
 }
 
 function Log(props) {
     return (
-        <div className='flex-child log'>
-            <label className='h2'>
+        <div className='panel log'>
+            <h2>
                 Log
-            <button className='input' onClick={props.onLogClear}>Clear</button>
-            </label>
+                <button className='panel input' onClick={props.onLogClear}>
+                    Clear
+                </button>
+            </h2>
             <div className='inner-log'>
                 {props.log}
             </div>
-        </div>        
+        </div>
     );
 }
 

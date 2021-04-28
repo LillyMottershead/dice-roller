@@ -276,14 +276,15 @@ function aliasCommand(tokens) {
 }
 
 
-function callAlias(alias, argsString) {
+function callAlias(alias, argsString, critRule) {
     let rolls = JSON.parse(localStorage.aliases)[alias].rolls;
     // add any extra rolls
     rolls = rolls.concat(Array.from(argsString.matchAll(aliasRollPattern), x => x[1]));
+    argsString = argsString.replaceAll(aliasRollPattern, '');
     aliasArgs(rolls, argsString);
     let crit = false;
     rolls = rolls.map(x => {
-        let roll = compoundRoll(x, crit);
+        let roll = compoundRoll(x, crit, critRule=critRule);
         crit = roll.crit || crit;
         return roll;
     });
@@ -294,7 +295,7 @@ function callAlias(alias, argsString) {
 }
 
 
-function command(str) {
+function command(str, critRule) {
     if (str === '') {
         throw new RollError('Empty command.');
     }
@@ -307,11 +308,11 @@ function command(str) {
     } else if (frontToken === 'delete') {
         return deleteCommand(tokens);
     } else if (JSON.parse(localStorage.aliases)[frontToken]) {
-        return callAlias(frontToken, Array.from(tokens).join(' '));
+        return callAlias(frontToken, Array.from(tokens).join(' '), critRule);
     } else {
         return {
             message: `Rolling ${str}:`,
-            rolls: [compoundRoll(str)],
+            rolls: [compoundRoll(str, critRule=critRule)],
         };
     }
 }
