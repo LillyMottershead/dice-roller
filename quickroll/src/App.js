@@ -8,11 +8,11 @@ class App extends React.Component {
         if (!localStorage.aliases) {
             localStorage.setItem('aliases', JSON.stringify({}));
         }
-        if (!localStorage.settings || localStorage.settings === undefined) {
+        if (!localStorage.settings) {
             localStorage.setItem('settings', JSON.stringify({critRule: 'rolldouble'}));
         }
         this.state = {
-            page: 'roller',
+            page: 'settings',
             settings: JSON.parse(localStorage.settings),
         };
         this.onPageClick = this.onPageClick.bind(this);
@@ -201,27 +201,15 @@ class Settings extends React.Component {
 }
 
 function RadioButton(props) {
-    if (props.checked) {
-        return (
-            <label>
-                <input 
-                    type='radio'
-                    name={props.name}
-                    value={props.value}
-                    onChange={props.onChange}
-                    checked
-                />
-                {props.content}
-            </label>
-        );        
-    }
     return (
         <label>
             <input 
                 type='radio'
+                className='input-radio'
                 name={props.name}
                 value={props.value}
                 onChange={props.onChange}
+                checked={props.checked}
             />
             {props.content}
         </label>

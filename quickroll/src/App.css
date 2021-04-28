@@ -131,6 +131,10 @@ h3 {
     z-index: -1;
 }
 
+.input-radio {
+
+}
+
 .input-file:focus+.input {
     border: 1px #dcdee3 solid;
 }
