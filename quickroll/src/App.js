@@ -189,7 +189,7 @@ class Settings extends React.Component {
                     <h2 style={{ textAlign: 'center'}}> Settings </h2>
                     <h3> Crit Rule </h3>
                     <i style={{ fontSize: '.75em' }}>Note that this only applies to future rolls.</i>
-                    <form>
+                    <form style={{ paddingTop: '.75em'}}>
                         { critRuleRadioButton('rolldouble', 'Roll double the number of dice.', this.props) }<br />
                         { critRuleRadioButton('doubledice', 'Roll the dice normally and double them.', this.props) }<br />
                         { critRuleRadioButton('addmaxdice', 'Roll the dice normally and add the maximum possible dice roll on top.', this.props) }<br />
@@ -202,15 +202,15 @@ class Settings extends React.Component {
 
 function RadioButton(props) {
     return (
-        <label>
+        <label className='input-radio-container'>
             <input 
                 type='radio'
-                className='input-radio'
                 name={props.name}
                 value={props.value}
                 onChange={props.onChange}
                 checked={props.checked}
             />
+            <span className='input-radio-check'></span>
             {props.content}
         </label>
     );
@@ -218,7 +218,7 @@ function RadioButton(props) {
 
 function RollForm(props) {
     return (
-        <form style={{ margin: '10px' }}>
+        <form style={{ margin: '10px', }}>
             <input
                 className='panel input-text'
                 type='text'
