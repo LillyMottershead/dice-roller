@@ -12,7 +12,7 @@ class App extends React.Component {
             localStorage.setItem('settings', JSON.stringify({critRule: 'rolldouble'}));
         }
         this.state = {
-            page: 'settings',
+            page: 'roller',
             settings: JSON.parse(localStorage.settings),
         };
         this.onPageClick = this.onPageClick.bind(this);
@@ -35,7 +35,7 @@ class App extends React.Component {
 
     render() {
         return (
-            <section>
+            <div>
                 <h1> quickroll </h1>
                 <span>
                     <button className='panel input' name='roller' onClick={this.onPageClick}>
@@ -47,7 +47,7 @@ class App extends React.Component {
                 </span>
                 <Main show={this.state.page === 'roller'} settings={this.state.settings}/>
                 <Settings show={this.state.page === 'settings'} settings={this.state.settings} onSettingsChange={this.onSettingsChange}/>
-            </section>
+            </div>
         );
     }
 }
@@ -65,23 +65,34 @@ class Main extends React.Component {
         this.textInputRef = React.createRef();
         this.onSubmit = this.onSubmit.bind(this);
         this.onRollFormChange = this.onRollFormChange.bind(this);
+        this.hideCall = this.hideCall.bind(this);
         this.onLogClear = this.onLogClear.bind(this);
     }
 
-    onRollFormChange = e => {
+    onRollFormChange(e) {
         const target = e.target;
         const value = target.value;
         const name = target.name;
         this.setState({ [name]: value, });
-    };
-    onLogClear = e => {
+    }
+    onLogClear(e) {
         e.preventDefault();
         this.setState({ log: { components: [], currKey: 0 } });
-    };
-    onSubmit = e => {
+    }
+    hideCall(index) {
+        this.setState((state) => {
+            state.output.calls[index] = null;
+            return {output: state.output};
+        });
+        if (this.state.output.calls.filter(x => x !== null).length === 1) {
+            this.setState( { output: { calls: [], currKey: 0 } });
+        }
+        this.textInputRef.current.focus();
+    }
+    onSubmit(e) {
         e.preventDefault();
 
-        function getRolls(rollCommand, index, log, critRule) {
+        function getRolls(rollCommand, index, log, critRule, hideCall) {
             function pushToLog(log, message) {
                 if (log.components.length > 100) {
                     log.components.pop();
@@ -111,7 +122,7 @@ class Main extends React.Component {
                 pushToLog(log, err.message);
                 output = <div className='panel flex-child'> {err.message} </div>;
             }
-            return <Call key={`call#${index}`} rolls={output} />;
+            return <Call key={`call#${index}`} rolls={output} handleClose={() => hideCall(index)}/>;
         }
         if (this.state.rollCommand === 'clear') {
             this.setState({
@@ -128,7 +139,7 @@ class Main extends React.Component {
         } else if (this.state.rollCommand !== '') {
             let times = +this.state.times || 1;
             let newOutput = [...new Array(times).keys()].map((x, i) =>
-                getRolls(this.state.rollCommand, this.state.output.currKey + i, this.state.log, this.props.settings.critRule)
+                getRolls(this.state.rollCommand, this.state.output.currKey + i, this.state.log, this.props.settings.critRule, this.hideCall)
             );
             this.setState({
                 rollCommand: '',
@@ -139,14 +150,14 @@ class Main extends React.Component {
             });
         }
         this.textInputRef.current.focus();
-    };
+    }
 
     render() {
         if (!this.props.show) {
             return null;
         }
         return (
-            <section>
+            <div>
                 <RollForm
                     rollCommand={this.state.rollCommand}
                     times={this.state.times}
@@ -154,15 +165,15 @@ class Main extends React.Component {
                     onSubmit={this.onSubmit}
                     textInputRef={this.textInputRef}
                 />
-                <section className='h-container'> {this.state.output.calls} </section>
-                <section className='h-container'>
+                <div className='h-container'> {this.state.output.calls.filter((x) => x !== null)} </div>
+                <div className='h-container'>
                     <Aliases
                         aliases={this.state.aliases}
                         handleUpload={this.handleUpload}
                     />
                     <Log log={this.state.log.components} onLogClear={this.onLogClear} />
-                </section>
-            </section>
+                </div>
+            </div>
         );
     }
 }
@@ -184,7 +195,7 @@ class Settings extends React.Component {
             );
         }
         return (
-            <section>
+            <div>
                 <div className='panel' style={{ textAlign: 'left' }}>
                     <h2 style={{ textAlign: 'center'}}> Settings </h2>
                     <h3> Crit Rule </h3>
@@ -195,7 +206,7 @@ class Settings extends React.Component {
                         { critRuleRadioButton('addmaxdice', 'Roll the dice normally and add the maximum possible dice roll on top.', this.props) }<br />
                     </form>
                 </div>
-            </section>
+            </div>
         );
     }
 }
@@ -248,12 +259,21 @@ function RollForm(props) {
 
 function Call(props) {
     return (
-        <section
-            className='h-container flex-child'
-            style={{ border: 'none', margin: '10px', maxWidth: '30%' }}
+        <div
+            className='h-container'
+            style={{ border: 'none', margin: '10px', maxWidth: '30%', cursor: 'pointer'}}
+            onClick={props.handleClose}
         >
             {props.rolls}
-        </section>
+            <span
+                className='close-button'
+            >
+                <svg width='10' height='10'>
+                    <line x1='0' y1='0' x2='10' y2='10' style={{ stroke: '#95969e', strokeWidth: 2}} />
+                    <line x1='0' y1='10' x2='10' y2='0' style={{ stroke: '#95969e', strokeWidth: 2}} />
+                </svg>
+            </span>
+        </div>
     );
 }
 
