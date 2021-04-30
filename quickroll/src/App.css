@@ -117,8 +117,9 @@ font-family: Courier New, Courier, monospace;
 }
 
 .close-button {
-    position: relative;
-    left: -15px;
+    position: absolute;
+    top: 0px;
+    right: 5px;
     visibility: hidden;
 }
 div:hover ~ .close-button {

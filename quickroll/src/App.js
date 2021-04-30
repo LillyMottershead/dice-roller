@@ -139,6 +139,7 @@ class Main extends React.Component {
                 log: state.log,
             }
         });
+        this.textInputRef.current.focus();
     }
 
     onSubmit(e) {
@@ -277,15 +278,11 @@ function Call(props) {
         <div
             className='h-container call'
             onClick={props.handleClose}
+            style={{ position: 'relative' }}
         >
             {props.rolls}
-            <span
-                className='close-button'
-            >
-                <svg width='10' height='10'>
-                    <line x1='0' y1='0' x2='10' y2='10' style={{ stroke: '#95969e', strokeWidth: 2}} />
-                    <line x1='0' y1='10' x2='10' y2='0' style={{ stroke: '#95969e', strokeWidth: 2}} />
-                </svg>
+            <span className='close-button'>
+                <CloseButton />
             </span>
         </div>
     );
@@ -341,16 +338,40 @@ function Aliases(props) {
     return (
         <div className='panel flex-child aliases'>
             <label className='h2'> Aliases </label>
-            <div> {aliases} </div>
+            <div> 
+                {aliases} 
+            </div>
         </div>
     );
 }
 
 function AliasButton(props) {
     return (
-        <p onClick={() => props.handleCommand(props.aliasName, 1)}> 
-            {props.aliasName} 
-        </p>
+        <div 
+            style={{ margin: '5px', padding: '5px', border: '1px #6b6c75 solid', textAlign: 'left', position: 'relative', }}
+        > 
+            <div 
+                style={{ width: '90%', cursor: 'pointer'}}
+                onClick={() => props.handleCommand(props.aliasName, 1)}
+            >
+                {props.aliasName}
+            </div>
+            <span 
+                style={{ position: 'absolute', right: '5px', top: '5px', cursor: 'pointer'}}
+                onClick={() => props.handleCommand(`alias delete ${props.aliasName}`, 1)}
+            >
+                <CloseButton />
+            </span>
+        </div>
+    );
+}
+
+function CloseButton(props) {
+    return (
+        <svg width='10' height='10'>
+            <line x1='0' y1='0' x2='10' y2='10' style={{ stroke: '#95969e', strokeWidth: 2}} />
+            <line x1='0' y1='10' x2='10' y2='0' style={{ stroke: '#95969e', strokeWidth: 2}} />
+        </svg>
     );
 }
 
