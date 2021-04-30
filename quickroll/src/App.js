@@ -62,11 +62,14 @@ class Main extends React.Component {
             aliases: JSON.parse(localStorage.aliases || '{ }'),
             log: { components: [], currKey: 0 },
         };
+    
         this.textInputRef = React.createRef();
-        this.onSubmit = this.onSubmit.bind(this);
+    
         this.onRollFormChange = this.onRollFormChange.bind(this);
-        this.hideCall = this.hideCall.bind(this);
         this.onLogClear = this.onLogClear.bind(this);
+        this.hideCall = this.hideCall.bind(this);
+        this.handleCommand = this.handleCommand.bind(this);
+        this.onSubmit = this.onSubmit.bind(this);
     }
 
     onRollFormChange(e) {
@@ -75,10 +78,12 @@ class Main extends React.Component {
         const name = target.name;
         this.setState({ [name]: value, });
     }
+    
     onLogClear(e) {
         e.preventDefault();
         this.setState({ log: { components: [], currKey: 0 } });
     }
+    
     hideCall(index) {
         this.setState((state) => {
             state.output.calls[index] = null;
@@ -89,9 +94,8 @@ class Main extends React.Component {
         }
         this.textInputRef.current.focus();
     }
-    onSubmit(e) {
-        e.preventDefault();
-
+    
+    handleCommand(rollCommand, times) {
         function getRolls(rollCommand, index, log, critRule, hideCall) {
             function pushToLog(log, message) {
                 if (log.components.length > 100) {
@@ -124,6 +128,22 @@ class Main extends React.Component {
             }
             return <Call key={`call#${index}`} rolls={output} handleClose={() => hideCall(index)}/>;
         }
+
+        let newOutput = [...new Array(times).keys()].map((x, i) =>
+            getRolls(rollCommand, this.state.output.currKey + i, this.state.log, this.props.settings.critRule, this.hideCall)
+        );
+        this.setState(state => {
+            return {
+                output: {calls: [...state.output.calls, ...newOutput], currKey: state.output.currKey + newOutput.length},
+                aliases: JSON.parse(localStorage.aliases || '{ }'),
+                log: state.log,
+            }
+        });
+    }
+
+    onSubmit(e) {
+        e.preventDefault();
+
         if (this.state.rollCommand === 'clear') {
             this.setState({
                 output: {calls: [], currKey: 0},
@@ -131,17 +151,7 @@ class Main extends React.Component {
         } else if (this.state.rollCommand === 'clear log') {
             this.onLogClear(e);
         } else if (this.state.rollCommand !== '') {
-            let times = +this.state.times || 1;
-            let newOutput = [...new Array(times).keys()].map((x, i) =>
-            getRolls(this.state.rollCommand, this.state.output.currKey + i, this.state.log, this.props.settings.critRule, this.hideCall)
-            );
-            this.setState(state => {
-                return {
-                    output: {calls: [...state.output.calls, ...newOutput], currKey: state.output.currKey + newOutput.length},
-                    aliases: JSON.parse(localStorage.aliases || '{ }'),
-                    log: state.log,
-                }
-            });
+            this.handleCommand(this.state.rollCommand, +this.state.times || 1);
         }
 
         if (this.state.rollCommand !== '') {
@@ -171,8 +181,12 @@ class Main extends React.Component {
                     <Aliases
                         aliases={this.state.aliases}
                         handleUpload={this.handleUpload}
+                        handleCommand={this.handleCommand}
                     />
-                    <Log log={this.state.log.components} onLogClear={this.onLogClear} />
+                    <Log 
+                        log={this.state.log.components} 
+                        onLogClear={this.onLogClear}
+                    />
                 </div>
             </div>
         );
@@ -305,13 +319,25 @@ function DieImage(props) {
     let sides = props.die.sides;
     let result = props.die.num;
     fileName = `${fileName}/${colorOrGray}d${sides}_${result}.svg`;
-    return <img src={fileName} alt={`${result} (d${sides})`} height='50px' />;
+    return (
+        <img 
+            src={fileName} 
+            alt={`${result} (d${sides})`} 
+            height='50px' 
+        />
+    );
 }
 
 function Aliases(props) {
     let aliases = Object.keys(props.aliases);
     aliases.sort();
-    aliases = aliases.map((x, i) => <p key={`alias#${i}`}> {x} </p>);
+    aliases = aliases.map((x, i) => (
+        <AliasButton 
+            key={`alias#${i}`} 
+            aliasName={x}
+            handleCommand={props.handleCommand}
+        />
+    ));
     return (
         <div className='panel flex-child aliases'>
             <label className='h2'> Aliases </label>
@@ -321,7 +347,11 @@ function Aliases(props) {
 }
 
 function AliasButton(props) {
-
+    return (
+        <p onClick={() => props.handleCommand(props.aliasName, 1)}> 
+            {props.aliasName} 
+        </p>
+    );
 }
 
 function Log(props) {
