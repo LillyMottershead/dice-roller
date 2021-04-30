@@ -177,7 +177,7 @@ class Main extends React.Component {
                     onSubmit={this.onSubmit}
                     textInputRef={this.textInputRef}
                 />
-                <div className='h-container'> {this.state.output.calls.filter((x) => x !== null)} </div>
+                <div className='h-container' style={{ alignItems: 'center', }}> {this.state.output.calls.filter((x) => x !== null)} </div>
                 <div className='h-container'>
                     <Aliases
                         aliases={this.state.aliases}
@@ -278,11 +278,11 @@ function Call(props) {
         <div
             className='h-container call'
             onClick={props.handleClose}
-            style={{ position: 'relative' }}
+            style={{ position: 'relative'}}
         >
             {props.rolls}
             <span className='close-button'>
-                <CloseButton />
+                <CloseButton color='red'/>
             </span>
         </div>
     );
@@ -367,10 +367,11 @@ function AliasButton(props) {
 }
 
 function CloseButton(props) {
+    let color = props.color || '#95969e';
     return (
         <svg width='10' height='10'>
-            <line x1='0' y1='0' x2='10' y2='10' style={{ stroke: '#95969e', strokeWidth: 2}} />
-            <line x1='0' y1='10' x2='10' y2='0' style={{ stroke: '#95969e', strokeWidth: 2}} />
+            <line x1='0' y1='0' x2='10' y2='10' style={{ stroke: color, strokeWidth: 2}} />
+            <line x1='0' y1='10' x2='10' y2='0' style={{ stroke: color, strokeWidth: 2}} />
         </svg>
     );
 }
