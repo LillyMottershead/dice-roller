@@ -126,27 +126,28 @@ class Main extends React.Component {
         }
         if (this.state.rollCommand === 'clear') {
             this.setState({
-                rollCommand: '',
-                times: '',
                 output: {calls: [], currKey: 0},
             });
         } else if (this.state.rollCommand === 'clear log') {
             this.onLogClear(e);
-            this.setState({
-                rollCommand: '',
-                times: '',
-            });
         } else if (this.state.rollCommand !== '') {
             let times = +this.state.times || 1;
             let newOutput = [...new Array(times).keys()].map((x, i) =>
-                getRolls(this.state.rollCommand, this.state.output.currKey + i, this.state.log, this.props.settings.critRule, this.hideCall)
+            getRolls(this.state.rollCommand, this.state.output.currKey + i, this.state.log, this.props.settings.critRule, this.hideCall)
             );
+            this.setState(state => {
+                return {
+                    output: {calls: [...state.output.calls, ...newOutput], currKey: state.output.currKey + newOutput.length},
+                    aliases: JSON.parse(localStorage.aliases || '{ }'),
+                    log: state.log,
+                }
+            });
+        }
+
+        if (this.state.rollCommand !== '') {
             this.setState({
                 rollCommand: '',
                 times: '',
-                output: {calls: [...this.state.output.calls, ...newOutput], currKey: this.state.output.currKey + newOutput.length},
-                aliases: JSON.parse(localStorage.aliases || '{ }'),
-                log: this.state.log,
             });
         }
         this.textInputRef.current.focus();
@@ -313,12 +314,14 @@ function Aliases(props) {
     aliases = aliases.map((x, i) => <p key={`alias#${i}`}> {x} </p>);
     return (
         <div className='panel flex-child aliases'>
-            <form style={{ padding: '5px' }}>
-                <label className='h2'> Aliases </label>
-            </form>
+            <label className='h2'> Aliases </label>
             <div> {aliases} </div>
         </div>
     );
+}
+
+function AliasButton(props) {
+
 }
 
 function Log(props) {
