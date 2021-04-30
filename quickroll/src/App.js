@@ -260,8 +260,7 @@ function RollForm(props) {
 function Call(props) {
     return (
         <div
-            className='h-container'
-            style={{ border: 'none', margin: '10px', maxWidth: '30%', cursor: 'pointer'}}
+            className='h-container call'
             onClick={props.handleClose}
         >
             {props.rolls}

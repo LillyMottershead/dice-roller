@@ -32,6 +32,23 @@ body {
     flex: 0 0 fit-content;
 }
 
+.call {
+    border: none;
+    margin: 10px;
+    max-width: 30%;
+    cursor: pointer;
+    animation-name: call-appear;
+    animation-duration: 1s;
+}
+@keyframes call-appear {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
 .aliases {
     flex: 0 0 200px;
 }
@@ -43,7 +60,7 @@ body {
 }
 
 .inner-log {
-    font-family: 'Courier New', Courier, monospace;
+font-family: Courier New, Courier, monospace;
     display: flex;
     flex-flow: column-reverse;
     overflow-y: auto;
@@ -73,10 +90,23 @@ body {
 
 .tooltip:hover .tooltiptext {
     visibility: visible;
+    animation-name: tooltip-fade-in;
+    animation-duration: 1s;
+}
+@keyframes tooltip-fade-in {
+    from {
+        opacity: 0;
+    }
+    80% {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 .tooltip .tooltiptext::after {
-    content: ' ';
+    content:  '';
     position: absolute;
     bottom: 100%;
     left: 50%;
