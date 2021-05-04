@@ -1,8 +1,8 @@
 {
   "files": {
-    "main.css": "/quick-dice/static/css/main.eab78e50.chunk.css",
-    "main.js": "/quick-dice/static/js/main.474cdd66.chunk.js",
-    "main.js.map": "/quick-dice/static/js/main.474cdd66.chunk.js.map",
+    "main.css": "/quick-dice/static/css/main.3c935909.chunk.css",
+    "main.js": "/quick-dice/static/js/main.4142b1ab.chunk.js",
+    "main.js.map": "/quick-dice/static/js/main.4142b1ab.chunk.js.map",
     "runtime-main.js": "/quick-dice/static/js/runtime-main.9f46274f.js",
     "runtime-main.js.map": "/quick-dice/static/js/runtime-main.9f46274f.js.map",
     "static/js/2.c464c22e.chunk.js": "/quick-dice/static/js/2.c464c22e.chunk.js",
@@ -10,13 +10,13 @@
     "static/js/3.a8330a6f.chunk.js": "/quick-dice/static/js/3.a8330a6f.chunk.js",
     "static/js/3.a8330a6f.chunk.js.map": "/quick-dice/static/js/3.a8330a6f.chunk.js.map",
     "index.html": "/quick-dice/index.html",
-    "static/css/main.eab78e50.chunk.css.map": "/quick-dice/static/css/main.eab78e50.chunk.css.map",
+    "static/css/main.3c935909.chunk.css.map": "/quick-dice/static/css/main.3c935909.chunk.css.map",
     "static/js/2.c464c22e.chunk.js.LICENSE.txt": "/quick-dice/static/js/2.c464c22e.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.9f46274f.js",
     "static/js/2.c464c22e.chunk.js",
-    "static/css/main.eab78e50.chunk.css",
-    "static/js/main.474cdd66.chunk.js"
+    "static/css/main.3c935909.chunk.css",
+    "static/js/main.4142b1ab.chunk.js"
   ]
 }
