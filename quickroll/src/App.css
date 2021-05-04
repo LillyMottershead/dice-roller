@@ -1,35 +1,54 @@
 html, body {
-    min-height: 100%;
-    width: 90%;
-    max-width: 1200px;
+    height: 100%;
+    width: 80%;
     margin: auto;
+    padding: 0;
     background: #353741;
     color: #dcdee3;
     font-family: Helvetica, Verdana, Arial, sans-serif;
     text-align: center;
 }
 
+html {
+    background: #17181a;
+}
+
 body {
     position: relative;
+    margin: auto;
+    border-left: 2px #6b6c75 solid;
+    border-right: 2px #6b6c75 solid;
+    box-shadow: 0 0 100px -20px #000000;
 }
 
 .panel {
     background: #2a2c31;
     border: 1px #6b6c75 solid;
-    padding: 0.7em;
+    padding: 1em;
     margin: 1em;
 }
 
 .h-container {
-    margin: auto;
+    margin: 0;
     display: flex;
     flex-flow: row;
     flex-wrap: wrap;
     justify-content: center;
 }
+.v-container {
+    margin: 0;
+    display: flex;
+    flex-flow: column;
+    flex-wrap: nowrap;
+    justify-content: center;
+    max-height: 100%;
+}
 
 .flex-child {
     flex: 0 0 fit-content;
+}
+.flex-fill {
+    flex: 1 1;
 }
 
 .call {
@@ -50,6 +69,7 @@ body {
 }
 
 .aliases {
+    margin-top: 10px;
     flex: 0 0 200px;
 }
 
@@ -60,12 +80,12 @@ body {
 }
 
 .inner-log {
-font-family: Courier New, Courier, monospace;
+    font-family: Courier New, Courier, monospace;
+    font-size: .8em;
     display: flex;
     flex-flow: column-reverse;
     overflow-y: auto;
-    height: 400px;
-    max-height: 400px;
+    height: 200px;
 }
 
 .tooltip {
@@ -84,7 +104,7 @@ font-family: Courier New, Courier, monospace;
     font-size: 0.75em;
     position: absolute;
     transform: translateX(-50%);
-    margin-top: 18px;
+    margin-top: 25px;
     z-index: 1;
 }
 
@@ -156,6 +176,10 @@ h3 {
     padding: .5em;
     margin: 1px;
     cursor: pointer;
+}
+.input:hover {
+    border: 1px #eca163 solid;
+    color: #eca163;
 }
 
 .input-text {

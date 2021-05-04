@@ -36,8 +36,8 @@ class App extends React.Component {
     render() {
         return (
             <div>
-                <h1> quickroll </h1>
-                <span>
+                <h1 style={{ padding: '10px' }}> quickroll </h1>
+                <span style={{ padding: '10px' }}>
                     <button className='panel input' name='roller' onClick={this.onPageClick}>
                         Roller
                     </button>
@@ -169,26 +169,32 @@ class Main extends React.Component {
             return null;
         }
         return (
-            <div>
-                <RollForm
-                    rollCommand={this.state.rollCommand}
-                    times={this.state.times}
-                    onRollFormChange={this.onRollFormChange}
-                    onSubmit={this.onSubmit}
-                    textInputRef={this.textInputRef}
-                />
-                <div className='h-container' style={{ alignItems: 'center', }}> {this.state.output.calls.filter((x) => x !== null)} </div>
-                <div className='h-container'>
-                    <Aliases
-                        aliases={this.state.aliases}
-                        handleUpload={this.handleUpload}
-                        handleCommand={this.handleCommand}
-                    />
-                    <Log 
-                        log={this.state.log.components} 
-                        onLogClear={this.onLogClear}
-                    />
+            <div className='h-container'>
+                <div className='v-container flex-fill' style={{ minWidth: '600px' }}>
+                    <RollForm
+                        rollCommand={this.state.rollCommand}
+                        times={this.state.times}
+                        onRollFormChange={this.onRollFormChange}
+                        onSubmit={this.onSubmit}
+                        textInputRef={this.textInputRef}
+                        />
+                    <div className='flex-fill' style={{ margin: '1em', }}>
+                        <div className='h-container' style={{ alignItems: 'center', height: '450px', overflow: 'auto',}}>
+                            {this.state.output.calls.filter((x) => x !== null).reverse()} 
+                        </div>
+                    </div>
+                    <div className='h-container'>
+                        <Log 
+                            log={this.state.log.components} 
+                            onLogClear={this.onLogClear}
+                            />
+                    </div>
                 </div>
+                <Aliases
+                    aliases={this.state.aliases}
+                    handleUpload={this.handleUpload}
+                    handleCommand={this.handleCommand}
+                    />
             </div>
         );
     }
@@ -278,7 +284,7 @@ function Call(props) {
         <div
             className='h-container call'
             onClick={props.handleClose}
-            style={{ position: 'relative'}}
+            style={{ position: 'relative', padding: '1em' }}
         >
             {props.rolls}
             <span className='close-button'>
@@ -297,7 +303,7 @@ function Roll(props) {
     return (
         <div
             className='panel flex-child tooltip'
-            style={{ margin: '-1px', marginBottom: '0px' }}
+            style={{ background: '',margin: '-1px', marginBottom: '0px' }}
         >
             {dice}
             <p>
