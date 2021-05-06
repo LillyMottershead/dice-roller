@@ -144,10 +144,11 @@ body {
     border-color: transparent transparent black transparent;
 }
 
+
 .close-button {
     position: absolute;
-    top: 0px;
-    right: 5px;
+    top: 15px;
+    right: 20px;
     visibility: hidden;
 }
 div:hover ~ .close-button {
@@ -262,6 +263,22 @@ code {
 
 .input-file:focus+.input {
     border: 1px #dcdee3 solid;
+}
+
+.page-button,
+.page-button-active {
+    background: none;
+    border: none;
+    color: #dcdee3;
+    font-size: 1.2em;
+    margin: 0 .3em 0 .3em;
+    cursor: pointer;
+}
+.page-button:hover {
+    color: #d8a378;
+}
+.page-button-active {
+    color: #d8a378;
 }
 
 img {
