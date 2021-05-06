@@ -34,16 +34,20 @@ class App extends React.Component {
     }
 
     render() {
+        let pages = ['roller', 'settings', 'help'];
+        function pageButton(name, onPageClick) {
+            return (
+            <button className='panel input' name={name} onClick={onPageClick}>
+                {`${name.charAt(0).toUpperCase()}${name.slice(1)}`}
+            </button>
+            );
+        }
+        let pageButtons = pages.map(x => pageButton(x, this.onPageClick));
         return (
             <div>
                 <h1 style={{ padding: '10px' }}> quickroll </h1>
                 <span style={{ padding: '10px' }}>
-                    <button className='panel input' name='roller' onClick={this.onPageClick}>
-                        Roller
-                    </button>
-                    <button className='panel input' name='settings' onClick={this.onPageClick}>
-                        Settings
-                    </button>
+                    {pageButtons}
                 </span>
                 <Main show={this.state.page === 'roller'} settings={this.state.settings}/>
                 <Settings show={this.state.page === 'settings'} settings={this.state.settings} onSettingsChange={this.onSettingsChange}/>
