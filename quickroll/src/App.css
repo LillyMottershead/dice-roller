@@ -28,6 +28,10 @@ body {
     margin: 1em;
 }
 
+.textheavy p {
+    margin: 1em 0 1em 0;
+}
+
 .h-container {
     margin: 0;
     display: flex;
@@ -80,12 +84,15 @@ body {
 }
 
 .inner-log {
-    font-family: Courier New, Courier, monospace;
-    font-size: .8em;
     display: flex;
     flex-flow: column-reverse;
     overflow-y: auto;
     height: 200px;
+}
+.inner-log p {
+    font-family: Courier New, Courier, monospace;
+    font-size: .8em;
+    line-height: 1em;
 }
 
 .tooltip {
@@ -150,8 +157,8 @@ div:hover ~ .close-button {
 }
 
 h1, h2, h3, p, .h2 {
-    line-height: 1.2;
-    margin: 0;
+    line-height: 1.5em;
+    margin: 0
 }
 
 h1 {
@@ -167,6 +174,14 @@ h2, .h2 {
 h3 {
     font-size: 1em;
     font-weight: bold;
+}
+
+code {
+    padding: 1px 3px 1px 3px;
+    font-family: 'Courier New', Courier, monospace;
+    color: #e9ae7e;
+    background-color: #0b0b0c;
+    border-radius: 5px;
 }
 
 .input, .input-text {

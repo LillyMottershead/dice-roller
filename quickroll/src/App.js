@@ -1,6 +1,8 @@
 import React from 'react';
 import './App.css';
 import command from './roll.js';
+import Help from './HelpPage.js';
+
 
 class App extends React.Component {
     constructor(props) {
@@ -12,7 +14,7 @@ class App extends React.Component {
             localStorage.setItem('settings', JSON.stringify({critRule: 'rolldouble'}));
         }
         this.state = {
-            page: 'roller',
+            page: 'help',
             settings: JSON.parse(localStorage.settings),
         };
         this.onPageClick = this.onPageClick.bind(this);
@@ -51,6 +53,7 @@ class App extends React.Component {
                 </span>
                 <Main show={this.state.page === 'roller'} settings={this.state.settings}/>
                 <Settings show={this.state.page === 'settings'} settings={this.state.settings} onSettingsChange={this.onSettingsChange}/>
+                <Help show={this.state.page === 'help'}/>
             </div>
         );
     }
@@ -263,6 +266,7 @@ function RollForm(props) {
                 autoFocus
                 name='rollCommand'
                 value={props.rollCommand}
+                placeholder='Command'
                 onChange={props.onRollFormChange}
             />
             <input
@@ -271,6 +275,7 @@ function RollForm(props) {
                 style={{ width: '30px' }}
                 name='times'
                 value={props.times}
+                placeholder='#'
                 onChange={props.onRollFormChange}
             />
             <input
