@@ -14,7 +14,7 @@ class App extends React.Component {
             localStorage.setItem('settings', JSON.stringify({critRule: 'rolldouble'}));
         }
         this.state = {
-            page: 'help',
+            page: 'roller',
             settings: JSON.parse(localStorage.settings),
         };
         this.onPageClick = this.onPageClick.bind(this);
@@ -177,7 +177,12 @@ class Main extends React.Component {
         }
         return (
             <div className='h-container'>
-                <div className='v-container flex-fill' style={{ minWidth: '600px' }}>
+                <Aliases
+                    aliases={this.state.aliases}
+                    handleUpload={this.handleUpload}
+                    handleCommand={this.handleCommand}
+                />
+                <div className='v-container flex-fill' style={{ width: '600px' }}>
                     <RollForm
                         rollCommand={this.state.rollCommand}
                         times={this.state.times}
@@ -186,7 +191,7 @@ class Main extends React.Component {
                         textInputRef={this.textInputRef}
                         />
                     <div className='flex-fill' style={{ margin: '1em', }}>
-                        <div className='h-container' style={{ alignItems: 'center', height: '450px', overflow: 'auto',}}>
+                        <div className='h-container' style={{ alignItems: 'center', height: '45vh', overflow: 'auto',}}>
                             {this.state.output.calls.filter((x) => x !== null).reverse()} 
                         </div>
                     </div>
@@ -197,11 +202,6 @@ class Main extends React.Component {
                             />
                     </div>
                 </div>
-                <Aliases
-                    aliases={this.state.aliases}
-                    handleUpload={this.handleUpload}
-                    handleCommand={this.handleCommand}
-                    />
             </div>
         );
     }
