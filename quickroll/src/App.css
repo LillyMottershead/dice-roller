@@ -16,6 +16,7 @@ html {
 body {
     position: relative;
     margin: auto;
+    padding-bottom: 1em;
     border-left: 2px #6b6c75 solid;
     border-right: 2px #6b6c75 solid;
     box-shadow: 0 0 100px -20px #000000;
